@@ -1,0 +1,72 @@
+<md-content layout-padding layout="row">
+    <div flex="80">
+        <md-content>
+            <h2>Planning Poker Rules</h2>
+            <ul class="md-body-2">
+                <li>Product backlog stories are presented by the product owner.</li>
+                <li>For each story, the team has a short conversation to reach for a common understanding. This conversation is time-boxed.</li>
+                <li>Once the conversation is over, each participant selects a card corresponding to his or her estimate.</li>
+                <li>This card is not shown to the other players.</li>
+                <li>All cards are turned over at the same time.</li>
+                <li>If estimates are close to each other, the estimate with the highest frequency is selected.</li>
+                <li>If estimates are diverging, the team discusses the estimates, focussing especially on the outliers. This conversation is time-boxed.</li>
+                <li>After discussion, the team plays again until all estimates converge.</li>
+            </ul>
+        </md-content>
+    </div>
+    <md-whiteframe layout-padding class="md-whiteframe-6dp" flex-sm="45" layout layout-align="center center">
+        <md-content>
+            <!--<md-toolbar>-->
+            <div class="md-toolbar-tools">
+                <h2>Sign Up</h2>
+                <span flex></span>
+            </div>
+            <!--</md-toolbar>-->
+            <md-divider></md-divider>
+
+            <form name="signupForm" ng-submit="callSignUp()">
+                <md-dialog-content>
+                    <div class="md-dialog-content">
+                        <md-input-container class="md-icon-float md-block">
+                            <!-- Use floating label instead of placeholder -->
+                            <label>E-mail</label>
+                            <!--<i class="material-icons">person</i>-->
+                            <md-icon class="md-primary">email</md-icon>
+                            <input ng-model="newuser.email" name="email" type="email" ng-required="true">
+                            <div ng-messages="signupForm.email.$error">
+                                <div ng-message="required">email is required to signup.</div>
+                            </div>
+                        </md-input-container>
+                        <md-input-container class="md-icon-float md-block">
+                            <!-- Use floating label instead of placeholder -->
+                            <label>username</label>
+                            <!--<i class="material-icons">person</i>-->
+                            <md-icon class="md-primary">person</md-icon>
+                            <input ng-model="newuser.username" name="username" type="text" ng-required="true" minlength="6" maxlength="20">
+                            <div ng-messages="signupForm.username.$error">
+                                <div ng-message="required">username is required to signup.</div>
+                                <div ng-message="minlength">The username should be at least 6 characters.</div>
+                            </div>
+                        </md-input-container>
+                        <md-input-container md-no-float class="md-block">
+                            <label>Password</label>
+                            <md-icon>lock</md-icon>
+                            <input ng-model="newuser.password" type="password" name="password" ng-required="true" minlength="6" maxlength="20">
+                            <div ng-messages="signupForm.password.$error">
+                                <div ng-message="required">You must give a password.</div>
+                                <div ng-message="minlength">Password should be at least 6 characters long.</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                </md-dialog-content>
+                <div layout="row">
+                    <span flex></span>
+                    <md-button type="submit" class="md-raised md-primary">
+                        Sign-up
+                    </md-button>
+                </div>
+            </form>
+        </md-content>
+    </md-whiteframe>
+    <div flex></div>
+</md-content>
