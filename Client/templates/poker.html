@@ -21,10 +21,24 @@
         <div flex="70">
             <div layout="column">
                 <div layout="row" layout-align="center center">
-                    <div class="pokerTable">
-                        <img src="Client/images/pokerTable.jpg" style="width: 600px; height=340px;" />
-                        <img src="Client/images/side-B/recto.png" style="width: 100px; height=200px;" ng-repeat="i in getNumber(6) track by $index" />
+                    <div flex="25"></div>
+                    <div flex="75" layout="column" class="pokerTableDiv">
+                        <div class="userDiv"></div>
+                        <img src="Client/images/table-darkergreen-nologo.png" class="pokerTable" />
+                        <div>
+                            <img src="Client/images/side-B/recto.png" ng-if="!showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
+                            <img src="Client/images/side-A/{{player.card}}" ng-if="showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
+                        </div>
+                        <div>
+                            <div class="pokerPlayer" ng-repeat="player in GroupUsers">
+                                <md-icon ng-if="player.online" class="md-primary" >person</md-icon>
+                                <md-icon ng-if="!player.online" class="" >person</md-icon>
+                                <label>{{player.userName}}</label>
+                            </div>
+                        </div>
+                        <div class="userDiv"></div>
                     </div>
+                    <div flex="25" ></div>
                     <!--<canvas id="gameCanvas" style="width: 100%; height=100%; border:1px solid #000000;">
                         
                     </canvas>-->

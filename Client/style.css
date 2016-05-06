@@ -14,3 +14,87 @@
   background: #ff8a80; }
 .gridListdemoBasicUsage md-grid-tile {
   transition: all 400ms ease-out 50ms; }
+  
+.pokerTableDiv{
+    position: relative;
+    height: 450px;
+    width: 100%;
+    
+}
+.userDiv{
+    height: 50px;
+    width: 100%; 
+}
+.userDiv:nth-child(1){
+    height: 100px;
+}
+.userDiv:nth-child(2){
+     height: 50px;
+}
+.pokerTable{
+    position: relative;
+    padding: auto;
+    /* width: 600px; */
+    /* height: 340px; */
+    z-index: 10;
+}
+.pokerCard{
+    position: absolute;
+    width: 60px; 
+    /*height: 200px;*/ 
+    z-index: 20;
+}
+
+.pokerCard:nth-child(1){
+    left: 315px;
+    top: 230px;
+}
+.pokerCard:nth-child(2){
+    left: 315px;
+    top: 100px;
+}
+.pokerCard:nth-child(3){
+    left: 440px;
+    top: 100px;
+}
+.pokerCard:nth-child(4){
+    left: 440px;
+    top: 230px;
+}
+.pokerCard:nth-child(5){
+    left: 190px;
+    top: 230px;
+}
+.pokerCard:nth-child(6){
+    left: 190px;
+    top: 100px;
+}
+div.pokerPlayer{
+    position: absolute;
+    z-index: 30;
+}
+  
+div.pokerPlayer:nth-child(1){
+   left: 280px;
+   top: 360px;
+}
+div.pokerPlayer:nth-child(2){
+   left: 280px;
+   top: 50px;
+}
+div.pokerPlayer:nth-child(3){
+  left: 440px;
+  top: 50px;
+}
+div.pokerPlayer:nth-child(4){
+  left: 440px;
+  top: 360px;
+}
+div.pokerPlayer:nth-child(5){
+  left: 140px;
+  top: 360px;
+}
+div.pokerPlayer:nth-child(6){
+  left: 140px;
+  top: 50px;
+}

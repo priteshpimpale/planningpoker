@@ -1,6 +1,6 @@
 var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessages"]);
 
-pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", function ($scope, $http, $location, $mdToast) {
+pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket", function ($scope, $http, $location, $mdToast,socket) {
     $scope.user = { username : ""};
     var imagePath = "img/list/60.jpeg";
     $scope.userStories = [{
@@ -14,7 +14,6 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
         description: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands"
     }];
 
-    $scope.cards = [{ value: 0.5, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
     
     var cookie = getCookie("username");
     if(cookie !== ""){
@@ -32,9 +31,12 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
                     $mdToast.simple()
                         .textContent("Welcome back " + $scope.user.username)
                         .position("top right")
-                        .hideDelay(3000)
+                        .hideDelay(2000)
                         .parent("div.poker")
                 );
+                socket.initiate(function(){
+                    startListning();
+                });
             }else{
                 window.alert(response.data.result);
             }
@@ -61,7 +63,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
                     $mdToast.simple()
                         .textContent("Bye bye.. Hope to see you again")
                         .position( "top right")
-                        .hideDelay(3000)
+                        .hideDelay(2000)
                         .parent("md-content.md-padding")
                 );
             }, function errorCallback(response) {
@@ -94,6 +96,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
             if(response.data.username){
                 $scope.user = response.data;
                 $location.path("/poker");
+                socket.initiate(function(){
+                    startListning();
+                });
             }else{
                 window.alert(response.data.result);
             }
@@ -122,9 +127,12 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
                     $mdToast.simple()
                         .textContent("Welcome back " + $scope.user.username)
                         .position( "top right")
-                        .hideDelay(3000)
+                        .hideDelay(2000)
                         .parent("md-content.md-padding")
                 );
+                socket.initiate(function(){
+                    startListning();
+                });
             }else{
                 window.alert(response.data.result);
             }
@@ -166,13 +174,75 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", functi
         return "";
     }
     /******************************************** */
+    $scope.cards = [{ value: 0, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
+    
+    $scope.GroupUsers = [
+        { "userName":"pritesh", "card": "b-0.png", "played" : true , "online" : false },
+        { "userName":"gargik", "card": "b-5.png", "played" : false, "online" : false },
+        { "userName":"swapnil", "card": "b-3.png", "played" : true, "online" : false },
+        { "userName":"jonathan", "card": "b-8.png", "played" : false, "online" : false  },
+        { "userName":"freddy", "card": "b-0.png", "played" : true, "online" : false  },
+        { "userName":"nitesh", "card": "b-0.png", "played" : true, "online" : false }
+    ];
+    
+    $scope.showCard = true;
     
     $scope.getNumber = function(num) {
         return new Array(num);   
     }
     
+    /****************    Socket Communication     ******************* */
+    function startListning(){
+        socket.on("confirmSession",function(msg){
+            console.log(msg);
+            showToast(msg);
+        });
+        
+        socket.on("broadcast",function(msg){
+            console.log(msg);
+            showToast(msg);
+        });
+        
+        socket.on("online",function(userName){
+            console.log(userName, " is online");
+            angular.forEach($scope.GroupUsers,function(member){
+                if(userName === member.userName){
+                    member.online = true;
+                }
+            });
+        });
+        
+        socket.on("offline",function(userName){
+            console.log(userName, " is offline");
+            angular.forEach($scope.GroupUsers,function(member){
+                if(userName === member.userName){
+                    member.online = false;
+                }
+            });
+        });
+        
+        socket.on("groupOnline",function(users){
+            console.log(users, " are online");
+            angular.forEach($scope.GroupUsers,function(member){
+                angular.forEach(users,function(user){
+                    if(user === member.userName){
+                        member.online = true;
+                    }
+                });
+            });
+        });
+    }
     
-    
+    function showToast(message){
+        $mdToast.show(
+            $mdToast.simple()
+                .textContent(message)
+                .position( "top right")
+                .hideDelay(2000)
+                .parent("md-content.md-padding")
+        );
+    }
+    /**************************************************************** */
 }]);
 
 pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", function($mdThemingProvider,$routeProvider,$compileProvider) {
@@ -208,9 +278,10 @@ pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", funct
 
 pokerApp.service("socket", ["$location", "$timeout",
     function ($location, $timeout) {
-        this.initiate = function () {
+        this.initiate = function (callback) {
             // this.socket = io();
-            this.socket = io.connect("http://localhost:5000");
+            this.socket = io.connect();
+            callback();
         };
 
         this.on = function (eventName, callback) {
