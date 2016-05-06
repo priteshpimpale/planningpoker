@@ -17,9 +17,9 @@
                     <md-option ng-value="theme" ng-repeat="theme in themes">theme {{theme}}</md-option>
                 </md-optgroup>
             </md-select>
-            <md-button ng-if="user.name === ''" ng-click="showLogin()">Sign in</md-button>
-            <md-button ng-if="user.name === ''" ng-click="showSignUp()">Sign up</md-button>
-            <md-menu ng-if="user.name !== ''" md-position-mode="target-right target">
+            <md-button ng-if="user.username === ''" ng-click="showLogin()">Sign in</md-button>
+            <md-button ng-if="user.username === ''" ng-click="showSignUp()">Sign up</md-button>
+            <md-menu ng-if="user.username !== ''" md-position-mode="target-right target">
                 <md-button aria-label="Open user menu" ng-click="openUserMenu($mdOpenMenu, $event)">
                     <md-icon md-menu-origin >person</md-icon>
                     {{user.username}}

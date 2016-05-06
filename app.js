@@ -13,7 +13,6 @@ app.use(express.static(".")); // serve static files
 // app.engine('html', require('ejs').renderFile);
 
 var mongodbUrl = "mongodb://localhost:27017/planningPoker";
-var store = "linkstore";
 
 
 var sessionMiddleware = session({

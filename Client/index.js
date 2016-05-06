@@ -1,7 +1,7 @@
 var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessages"]);
 
-pokerApp.controller("PokerCtrl",["$scope","$http","$location", function ($scope, $http, $location) {
-    $scope.user = { name : ""};
+pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast", function ($scope, $http, $location, $mdToast) {
+    $scope.user = { username : ""};
     var imagePath = "img/list/60.jpeg";
     $scope.userStories = [{
         face: imagePath,
@@ -16,6 +16,61 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location", function ($scope,
 
     $scope.cards = [{ value: 0.5, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
     
+    var cookie = getCookie("username");
+    if(cookie !== ""){
+        $http({
+            method: "POST",
+            url: "/api/userlogin",
+            data: { usernameCookie : cookie }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data.username){
+                $scope.user = response.data;
+                setCookie("username" , $scope.user._id, 10);
+                $location.path("/poker");
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Welcome back " + $scope.user.username)
+                        .position("top right")
+                        .hideDelay(3000)
+                        .parent("div.poker")
+                );
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }
+    
+    $scope.openUserMenu = function ($mdOpenMenu, ev) {
+        originatorEv = ev;
+        $mdOpenMenu(ev);
+    };
+
+    $scope.logout = function(){
+        $http({
+            method: "GET",
+            url: "/api/logout",
+            }).then(function successCallback(response) {
+                $scope.user = { username : "" };
+                console.log(response);
+                setCookie("username", "", 0);
+                $location.path("/");
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Bye bye.. Hope to see you again")
+                        .position( "top right")
+                        .hideDelay(3000)
+                        .parent("md-content.md-padding")
+                );
+            }, function errorCallback(response) {
+                //window.alert(response);
+                console.error(response);
+        });
+    };
+    
+        
     $scope.newuser = {
       email : "",
       username : "",
@@ -61,7 +116,15 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location", function ($scope,
             console.log(response.data);
             if(response.data.username){
                 $scope.user = response.data;
+                setCookie("username" , $scope.user._id, 10);
                 $location.path("/poker");
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Welcome back " + $scope.user.username)
+                        .position( "top right")
+                        .hideDelay(3000)
+                        .parent("md-content.md-padding")
+                );
             }else{
                 window.alert(response.data.result);
             }
@@ -102,6 +165,13 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location", function ($scope,
         }
         return "";
     }
+    /******************************************** */
+    
+    $scope.getNumber = function(num) {
+        return new Array(num);   
+    }
+    
+    
     
 }]);
 

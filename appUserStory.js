@@ -1,5 +1,5 @@
 module.exports = {
-    addRoutes: function(app,mongo){
+    addRoutes: function(app,MongoClient, mongodbUrl){
         /********** modify urls as required ****************** */
         //// all secured request must be inside session 
         app.get("/api/offers", function (req, res) {

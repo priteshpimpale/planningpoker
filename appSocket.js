@@ -1,5 +1,5 @@
 module.exports = {
-    addSocket: function(io,mongo){
+    addSocket: function(io,MongoClient, mongodbUrl){
         var clients = [];
         var usersList = [];
         io.on('connection', function (socket) {

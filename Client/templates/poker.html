@@ -1,4 +1,4 @@
-<div layout="row">
+<div layout="row" class="poker">
         <div flex="30">
             <md-toolbar class="md-theme-light md-hue-3">
                 <h2 class="md-toolbar-tools">
@@ -21,7 +21,10 @@
         <div flex="70">
             <div layout="column">
                 <div layout="row" layout-align="center center">
-                    <img src="Client/images/pokerTable.jpg" style="width: 60%; height=60%;" />
+                    <div class="pokerTable">
+                        <img src="Client/images/pokerTable.jpg" style="width: 600px; height=340px;" />
+                        <img src="Client/images/side-B/recto.png" style="width: 100px; height=200px;" ng-repeat="i in getNumber(6) track by $index" />
+                    </div>
                     <!--<canvas id="gameCanvas" style="width: 100%; height=100%; border:1px solid #000000;">
                         
                     </canvas>-->
