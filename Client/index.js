@@ -1,6 +1,6 @@
 var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessages"]);
 
-pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket", function ($scope, $http, $location, $mdToast,socket) {
+pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,socket) {
     $scope.user = { username : ""};
     var imagePath = "img/list/60.jpeg";
     $scope.userStories = [{
@@ -14,6 +14,51 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket
         description: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands"
     }];
 
+    
+    ion.sound({
+        sounds: [
+            {
+                name: "bell_ring"
+            },{
+                name: "chat_alertshort"
+            },{
+                name: "water_droplet_3"
+            },{
+                name: "button_tiny"
+            }
+            // {
+            //     name: "notify_sound",
+            //     volume: 0.2
+            // },
+            // {
+            //     name: "alert_sound",
+            //     volume: 0.3,
+            //     preload: false
+            // }
+        ],
+        volume: 0.8,
+        path: "Client/ion.sound-3.0.7/sounds/",
+        preload: true
+    });
+    
+    ion.sound({
+        sounds: [
+            {
+                name: "cardPlace1"
+            },{
+                name: "cardPlace2"
+            }
+        ],
+        volume: 0.8,
+        path: "Client/alerts/Casino sound package/",
+        preload: true
+    });
+    
+    
+    
+    //ion.sound.play("chat_alertshort");
+    
+    
     
     var cookie = getCookie("username");
     if(cookie !== ""){
@@ -39,10 +84,13 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket
                 });
             }else{
                 window.alert(response.data.result);
+                $location.path("/");
             }
         }, function errorCallback(response) {
             console.error(response);
         });
+    }else{
+        $location.path("/");
     }
     
     $scope.openUserMenu = function ($mdOpenMenu, ev) {
@@ -177,22 +225,69 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket
     $scope.cards = [{ value: 0, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
     
     $scope.GroupUsers = [
-        { "userName":"pritesh", "card": "b-0.png", "played" : true , "online" : false },
-        { "userName":"gargik", "card": "b-5.png", "played" : false, "online" : false },
-        { "userName":"swapnil", "card": "b-3.png", "played" : true, "online" : false },
-        { "userName":"jonathan", "card": "b-8.png", "played" : false, "online" : false  },
-        { "userName":"freddy", "card": "b-0.png", "played" : true, "online" : false  },
-        { "userName":"nitesh", "card": "b-0.png", "played" : true, "online" : false }
+        { "userName":"pritesh", "card": "", "played" : false , "online" : false },
+        { "userName":"gargik", "card": "", "played" : false, "online" : false },
+        { "userName":"swapnil", "card": "", "played" : false, "online" : false },
+        { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
+        { "userName":"freddy", "card": "", "played" : false, "online" : false  },
+        { "userName":"nitesh", "card": "", "played" : false, "online" : false }
     ];
     
-    $scope.showCard = true;
+    $scope.showCard = false;
     
     $scope.getNumber = function(num) {
         return new Array(num);   
+    };
+    /***************    game controls   ********************************* */
+    $scope.playCard = function(card){
+        socket.emit("playCard",card);
+    };
+    
+    $scope.showCards = function(card){
+        socket.emit("showCards");
+    };
+    $scope.chatGroup = [];
+    
+    $scope.chat = { text: "" };
+    
+    $scope.typingUser = "";
+    
+    $scope.sendChat = function(){
+        $scope.chatGroup.push({ "user" :$scope.user.username, "text" : $scope.chat.text });
+        socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text })
+        $scope.chat.text = "";
+    };
+    
+    $scope.$watch($scope.chat,function(newVal,oldVal){
+        socket.emit("typing");
+    });
+    
+    $scope.toggleRight = buildToggler('right');
+    function buildToggler(navID) {
+      return function() {
+        $mdSidenav(navID)
+          .toggle()
+          .then(function () {
+            $log.debug("toggle " + navID + " is done");
+          });
+      }
     }
     
-    /****************    Socket Communication     ******************* */
+    $scope.close = function () {
+      $mdSidenav('right').close()
+        .then(function () {
+          $log.debug("close RIGHT is done");
+        });
+    };
+    
+    /****************    Socket Listners     ******************* */
     function startListning(){
+        angular.forEach($scope.GroupUsers,function(member){
+            if($scope.user.userName === member.userName){
+                member.online = true;
+            }
+        });
+        
         socket.on("confirmSession",function(msg){
             console.log(msg);
             showToast(msg);
@@ -205,6 +300,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket
         
         socket.on("online",function(userName){
             console.log(userName, " is online");
+            ion.sound.play("water_droplet_3");
             angular.forEach($scope.GroupUsers,function(member){
                 if(userName === member.userName){
                     member.online = true;
@@ -230,6 +326,27 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","socket
                     }
                 });
             });
+        });
+        
+        socket.on("playedCard",function(play){
+            console.log(play.user, " played");
+            ion.sound.play("cardPlace1");
+            angular.forEach($scope.GroupUsers,function(member){
+                if(play.user === member.userName){
+                    member.card = "b-" + play.card + ".png";
+                    member.played = true;
+                }
+            });
+        });
+        
+        socket.on("showCard",function(){
+            ion.sound.play("button_tiny");
+            $scope.showCard = true;
+        });
+        
+        socket.on("chatMessage",function(message){
+            $scope.chatGroup.push(message);
+            ion.sound.play("chat_alertshort");
         });
     }
     
@@ -269,6 +386,10 @@ pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", funct
     })
     .when("/poker", {
         templateUrl:"Client/templates/poker.html",
+        //controller: "fileupload"
+    })
+    .when("/scrummaster", {
+        templateUrl:"Client/templates/scrumMaster.html",
         //controller: "fileupload"
     })
     .otherwise({

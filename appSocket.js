@@ -15,6 +15,7 @@ module.exports = {
         io.on('connection', function (socket) {
             console.log('a user connected');
             var req = socket.request;
+            // check if session exists
             if (req.session) {
                 usersList[req.session.username] = socket.id; // connected user with its socket.id
                 clients[socket.id] = socket; // add the client data to the hash
@@ -35,12 +36,48 @@ module.exports = {
                         if(member === req.session.username){
                             socket.join(group.groupName);
                             group.onlineMembers.push(req.session.username);
-                            //socket.broadcast.to(group.groupName).emit("online", req.session.username);
-                            io.sockets.in(group.groupName).emit("online", req.session.username);
+                            socket.broadcast.to(group.groupName).emit("online", req.session.username);
+                            //io.sockets.in(group.groupName).emit("online", req.session.username);
                             socket.emit("groupOnline",group.onlineMembers);
                         }
                     });
                 });
+                
+                
+                socket.on("playCard",function (card) {
+                    groups.forEach(function(group) {
+                        group.members.forEach(function(member) {
+                            if(member === req.session.username){
+                                io.sockets.in(group.groupName).emit("playedCard",{ user : req.session.username, card: card });
+                                //socket.emit("playedCard",group.onlineMembers);
+                            }
+                        });
+                    });
+                });
+                
+                socket.on("showCards",function (card) {
+                    groups.forEach(function(group) {
+                        group.members.forEach(function(member) {
+                            if(member === req.session.username){
+                                io.sockets.in(group.groupName).emit("showCard");
+                                //socket.emit("playedCard",group.onlineMembers);
+                            }
+                        });
+                    });
+                });
+                
+                socket.on("chatMessage",function (message) {
+                    groups.forEach(function(group) {
+                        group.members.forEach(function(member) {
+                            if(member === req.session.username){
+                                socket.broadcast.to(group.groupName).emit("chatMessage", message);
+                                //io.sockets.in(group.groupName).emit("chatMessage",message);
+                                //socket.emit("playedCard",group.onlineMembers);
+                            }
+                        });
+                    });
+                });
+                
                 
                 //io.emit("broadcast" , "Hello Everyone.");
             } else {
@@ -74,9 +111,6 @@ module.exports = {
                 } else {
                     console.log('unknowon user disconnected');
                 }
-                
-                // remove user from onlineMembers
-
             });
         });
     }

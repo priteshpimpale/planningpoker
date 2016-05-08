@@ -16,7 +16,7 @@ var mongodbUrl = "mongodb://localhost:27017/planningPoker";
 
 
 var sessionMiddleware = session({
-    secret: "keyboard cat", cookie: { maxAge: 5 * 60 * 1000 } // sets maximum time for session
+    secret: "keyboard cat", cookie: { maxAge: 30 * 60 * 1000 } // sets maximum time for session
 });
 
 io.use(function (socket, next) {

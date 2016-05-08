@@ -98,3 +98,7 @@ div.pokerPlayer:nth-child(6){
   left: 140px;
   top: 50px;
 }
+
+.chatDiv{
+  height: 100%;
+}

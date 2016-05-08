@@ -1,54 +1,98 @@
 <div layout="row" class="poker">
-        <div flex="30">
-            <md-toolbar class="md-theme-light md-hue-3">
-                <h2 class="md-toolbar-tools">
-            <span>Product Backlog</span>
-            </h2>
-            </md-toolbar>
-            <md-content>
-                <md-list>
-                    <md-list-item class="md-3-line" ng-repeat="item in userStories">
-                        <div class="md-list-item-text">
-                            <h3>{{item.title}}</h3>
-                            <p>{{item.description}}</p>
-                        </div>
-                        <md-button class="md-secondary">Respond</md-button>
-                        <md-divider ng-if="!$last"></md-divider>
-                    </md-list-item>
-                </md-list>
-            </md-content>
-        </div>
-        <div flex="70">
-            <div layout="column">
-                <div layout="row" layout-align="center center">
-                    <div flex="25"></div>
-                    <div flex="75" layout="column" class="pokerTableDiv">
-                        <div class="userDiv"></div>
-                        <img src="Client/images/table-darkergreen-nologo.png" class="pokerTable" />
-                        <div>
-                            <img src="Client/images/side-B/recto.png" ng-if="!showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
-                            <img src="Client/images/side-A/{{player.card}}" ng-if="showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
-                        </div>
-                        <div>
-                            <div class="pokerPlayer" ng-repeat="player in GroupUsers">
-                                <md-icon ng-if="player.online" class="md-primary" >person</md-icon>
-                                <md-icon ng-if="!player.online" class="" >person</md-icon>
-                                <label>{{player.userName}}</label>
-                            </div>
-                        </div>
-                        <div class="userDiv"></div>
+    <div flex="25">
+        <md-toolbar class="md-theme-light md-hue-3">
+            <h2 class="md-toolbar-tools">
+        <span>Product Backlog</span>
+        </h2>
+        </md-toolbar>
+        <md-content>
+            <md-list>
+                <md-list-item class="md-3-line" ng-repeat="item in userStories">
+                    <div class="md-list-item-text">
+                        <h3>{{item.title}}</h3>
+                        <p>{{item.description}}</p>
                     </div>
-                    <div flex="25" ></div>
-                    <!--<canvas id="gameCanvas" style="width: 100%; height=100%; border:1px solid #000000;">
-                        
-                    </canvas>-->
+                    <md-button class="md-secondary">Respond</md-button>
+                    <md-divider ng-if="!$last"></md-divider>
+                </md-list-item>
+            </md-list>
+        </md-content>
+    </div>
+    <div flex="75">
+        <div layout="column">
+            <div layout="row" layout-align="center center">
+                <div flex="5"></div>
+                <div flex="75" layout="column" class="pokerTableDiv">
+                    <div class="userDiv"></div>
+                    <img src="Client/images/table-darkergreen-nologo.png" class="pokerTable" />
+                    <div>
+                        <img src="Client/images/side-B/recto.png" ng-if="!showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
+                        <img src="Client/images/side-A/{{player.card}}" ng-if="showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers" />
+                    </div>
+                    <div>
+                        <div class="pokerPlayer" ng-repeat="player in GroupUsers">
+                            <md-icon ng-if="player.online" class="md-primary" >person</md-icon>
+                            <md-icon ng-if="!player.online" class="" >person</md-icon>
+                            <label>{{player.userName}}</label>
+                        </div>
+                    </div>
+                    <div class="userDiv"></div>
                 </div>
-                <div layout="row" class="gridListdemoBasicUsage">
-                    <md-card ng-repeat="card in cards">
-                        <img ng-src="Client/images/side-A/{{card.imagePath}}" class="md-card-image" alt="Washed Out">
-                    </md-card>
-
+                <div flex="45" class="chatDiv">
+                    
                 </div>
+                <!--<canvas id="gameCanvas" style="width: 100%; height=100%; border:1px solid #000000;">
+                    
+                </canvas>-->
+                <md-button ng-click="toggleRight()" ng-hide="isOpenRight()" class="md-primary">
+                    Show Chat
+                </md-button>
+                <!--<md-button ng-click="showCards()">Show Cards</md-button>-->
+            </div>
+            <div layout="row" class="gridListdemoBasicUsage">
+                <md-card ng-repeat="card in cards">
+                    <img ng-src="Client/images/side-A/{{card.imagePath}}" ng-click="playCard(card.value)" class="md-card-image" alt="Washed Out">
+                </md-card>
             </div>
         </div>
     </div>
+    
+    <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
+        <md-toolbar class="md-theme-light">
+            <div class="md-toolbar-tools">
+                <h1>Group Chat</h1>
+                <md-button ng-click="close()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-content layout-padding>
+            
+                            <md-list>
+                                <md-subheader class="md-no-sticky">Today</md-subheader>
+                                <md-list-item ng-repeat="message in chatGroup">
+                                    <!--<img ng-src="{{message.face}}?{{$index}}" class="md-avatar" alt="{{message.user}}" />-->
+                                    <div class="md-list-item-text" layout="column">
+                                        <p>{{ message.user }} :{{ message.text }}</p>
+                                    </div>
+                                </md-list-item>
+                                <md-divider ng-if="!$last"></md-divider>
+                                <!--<lable ng-if="typingUser !== ''">{{typingUser}} is typing</lable>-->
+                                <md-list-item >
+                                    <div class="md-list-item-text" layout="row">
+                                        <md-input-container flex class="md-icon-float md-block">
+                                            <label>chat</label>
+                                            <input ng-model="chat.text" name="chatText" type="text">
+                                        </md-input-container>
+                                        <md-button ng-click="sendChat()" class="md-fab md-mini md-primary">
+                                            <md-icon class="md-primary">send</md-icon>
+                                        </md-button>
+                                    </div>
+                                </md-list-item>
+                            </md-list>
+            
+        </md-content>
+    </md-sidenav>
+    
+    
+</div>

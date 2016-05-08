@@ -14,7 +14,7 @@
             <div class="md-toolbar-tools">Planning Poker</div>
              <md-select ng-model="dynamicTheme" md-selected-text="getSelectedText()" aria-label="themeSelect">   
                 <md-optgroup label="themes">
-                    <md-option ng-value="theme" ng-repeat="theme in themes">theme {{theme}}</md-option>
+                    <md-option ng-value="theme" ng-repeat="theme in themes">{{theme}}</md-option>
                 </md-optgroup>
             </md-select>
             <md-button ng-if="user.username === ''" ng-click="showLogin()">Sign in</md-button>
@@ -53,6 +53,7 @@
 <script type="text/javascript" src="node_modules/angular-messages/angular-messages.js"></script>
 <script type="text/javascript" src="node_modules/angular-aria/angular-aria.js"></script>
 <script type="text/javascript" src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+<script type="text/javascript" src="Client/ion.sound-3.0.7/ion.sound.js"></script>
 <script type="text/javascript" src="Client/index.js"></script>
 
 </html>
