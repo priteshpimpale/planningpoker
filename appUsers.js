@@ -105,6 +105,34 @@ module.exports = {
             }
         });
         
+        app.get("/api/users",function(req,res){
+            sess = req.session;
+            // check if session exist
+            if (sess.user) {
+                MongoClient.connect(mongodbUrl, function(err, db) {
+                    if (err) {
+                        throw err;
+                    }else{
+                        
+                        db.collection(userCollection).distinct("_id",function(err,result){
+                             if (err) {
+                                throw err;
+                            }else{
+                                console.log(result);
+                                db.close();
+                                if(result !== null){  
+                                    res.send(result);
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.send({ "result": "Session Timed out" });
+            }
+        });
+        
+        
         /// logout user
         app.get('/api/logout', function (req, res) {
             req.session.destroy(function (err) {

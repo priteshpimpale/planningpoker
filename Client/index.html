@@ -10,40 +10,60 @@
 
 <body ng-app="planningPoker">
     <div ng-controller="PokerCtrl" ng-cloak="" class="gridListdemoBasicUsage" md-theme="{{ dynamicTheme }}" md-theme-watch>
-        <md-toolbar md-scroll-shrink layout="row">
+        <md-toolbar layout="row">
+            <md-button ng-click="toggleProjectNavLeft()" class="">
+                    <md-icon>menu</md-icon>
+            </md-button>
             <div class="md-toolbar-tools">Planning Poker</div>
-             <md-select ng-model="dynamicTheme" md-selected-text="getSelectedText()" aria-label="themeSelect">   
-                <md-optgroup label="themes">
-                    <md-option ng-value="theme" ng-repeat="theme in themes">{{theme}}</md-option>
+            <md-select ng-model="project" md-selected-text="getSelectedProject()" aria-label="projectSelect">   
+                <md-optgroup label="Projects">
+                    <md-option ng-value="project" ng-repeat="project in projects">{{project}}</md-option>
                 </md-optgroup>
             </md-select>
             <md-button ng-if="user.username === ''" ng-click="showLogin()">Sign in</md-button>
             <md-button ng-if="user.username === ''" ng-click="showSignUp()">Sign up</md-button>
-            <md-menu ng-if="user.username !== ''" md-position-mode="target-right target">
-                <md-button aria-label="Open user menu" ng-click="openUserMenu($mdOpenMenu, $event)">
-                    <md-icon md-menu-origin >person</md-icon>
-                    {{user.username}}
-                </md-button>
-                <md-menu-content width="4">
-                    <md-menu-item>
-                        <md-button>
-                            <md-icon md-menu-origin >person</md-icon>
-                            {{user.username}}
-                        </md-button>
-                    </md-menu-item>
-                    <md-menu-divider></md-menu-divider>
-                    <md-menu-item>
-                        <md-button ng-click="logout($event)">
+            <md-menu-bar>
+                <md-menu ng-if="user.username !== ''" md-position-mode="target-right target">
+                    <md-button aria-label="Open user menu" ng-click="openUserMenu($mdOpenMenu, $event)">
+                        <md-icon md-menu-origin>person</md-icon>
+                        {{user.username}}
+                    </md-button>
+                    <md-menu-content width="4">
+                        <md-menu-item>
+                            <md-button>
+                                <md-icon md-menu-origin>person</md-icon>
+                                {{user.username}}
+                            </md-button>
+                        </md-menu-item>
+                        <md-menu-divider></md-menu-divider>
+                        <md-menu-item>
+                            <!--<md-button ng-click="settings($mdOpenMenu, $event)">
                             <!--<md-icon md-svg-icon="call:dialpad" md-menu-align-target></md-icon>-->
-                            Logout
-                        </md-button>
-                    </md-menu-item>
-                    
-                </md-menu-content>
-            </md-menu>
+                            <!--Settings-->
+                            <!--</md-button>-->
+                            <md-menu>
+                                <md-button ng-click="openUserMenu($mdOpenMenu, $event)">Select Theme</md-button>
+                                <md-menu-content>
+                                        <md-menu-item ng-model="dynamicTheme" ng-click="changeTheme(theme)" aria-label="themeSelect" ng-value="theme" ng-repeat="theme in themes">
+                                                <md-button>{{theme}}</md-button>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
+                        </md-menu-item>
+                        <md-menu-divider></md-menu-divider>
+                        <md-menu-item>
+                            <md-button ng-click="logout($event)">
+                                <!--<md-icon md-svg-icon="call:dialpad" md-menu-align-target></md-icon>-->
+                                Logout
+                            </md-button>
+                        </md-menu-item>
+
+                    </md-menu-content>
+                </md-menu>
+            </md-menu-bar>
            
         </md-toolbar>
-        <div ng-view></div>
+        <md-content ng-view></md-content>
     </div>
 </body>
 <script type="text/javascript" src="node_modules/angular/angular.js"></script>

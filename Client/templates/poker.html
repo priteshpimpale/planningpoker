@@ -1,23 +1,29 @@
 <div layout="row" class="poker">
-    <div flex="25">
-        <md-toolbar class="md-theme-light md-hue-3">
+    <md-content flex="25" layout-fill>
+        <md-toolbar md-scroll-shrink="" class="md-theme-light md-hue-1">
             <h2 class="md-toolbar-tools">
-        <span>Product Backlog</span>
-        </h2>
+                <span>Product Backlog</span>
+            </h2>
         </md-toolbar>
-        <md-content>
-            <md-list>
-                <md-list-item class="md-3-line" ng-repeat="item in userStories">
-                    <div class="md-list-item-text">
-                        <h3>{{item.title}}</h3>
-                        <p>{{item.description}}</p>
+        <md-content layout="column" layout-align="center">
+                <md-list>
+                    <div ng-class="{selected: item.isCurrent}" ng-repeat="item in userStories">
+                    <md-list-item class="md-3-line md-long-text" >
+                        <div class="md-list-item-text">
+                            <div layout="row"> 
+                                <h3 flex="90" >{{item.name}}</h3>
+                                <!--<label flex="10" class=" md-hue-3" >{{item.storyPoint}}</label>-->
+                                <md-button fles="10" ng-if="item.storyPoint !== -1" class="md-fab md-mini">{{item.storyPoint}} </md-button>
+                            </div>
+                            <p>{{item.story}}</p>
+                        </div>
+                        
+                        <md-divider ng-if="!$last"></md-divider>
+                    </md-list-item>
                     </div>
-                    <md-button class="md-secondary">Respond</md-button>
-                    <md-divider ng-if="!$last"></md-divider>
-                </md-list-item>
-            </md-list>
+                </md-list>
         </md-content>
-    </div>
+    </md-content>
     <div flex="75">
         <div layout="column">
             <div layout="row" layout-align="center center">
@@ -61,7 +67,7 @@
         <md-toolbar class="md-theme-light">
             <div class="md-toolbar-tools">
                 <h1>Group Chat</h1>
-                <md-button ng-click="close()">
+                <md-button ng-click="close('right')">
                     <md-icon>close</md-icon>
                 </md-button>
             </div>

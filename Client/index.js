@@ -4,14 +4,25 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     $scope.user = { username : ""};
     var imagePath = "img/list/60.jpeg";
     $scope.userStories = [{
-        face: imagePath,
-        title: "Brunch this weekend?",
-        description: " I'll be in your neighborhood doing errands"
+        name: "Brunch this weekend?",
+        story: " I'll be in your neighborhood doing errands",
+        game : [],
+        storyPoint : 8,
+        isCurrent : false
     },
     {
-        face: imagePath,
-        title: "Brunch this weekend?",
-        description: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands"
+        name: "Brunch this weekend?",
+        story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
+        game : [],
+        storyPoint : 13,
+        isCurrent : true
+    },
+    {
+        name: "Brunch this weekend?",
+        story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
+        game : [],
+        storyPoint : -1,
+        isCurrent : false
     }];
 
     
@@ -79,6 +90,15 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                         .hideDelay(2000)
                         .parent("div.poker")
                 );
+                
+                if($scope.user.role == "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role == "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
+                
                 socket.initiate(function(){
                     startListning();
                 });
@@ -114,6 +134,22 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                         .hideDelay(2000)
                         .parent("md-content.md-padding")
                 );
+                
+                $scope.credential = {
+                    username : "",
+                    password : ""
+                };
+                $scope.newuser = {
+                    firstName : "",
+                    lastName : "",
+                    email : "",
+                    username : "",
+                    password : "",
+                    role : ""
+                };
+                //// end the socket communication
+                
+                
             }, function errorCallback(response) {
                 //window.alert(response);
                 console.error(response);
@@ -128,10 +164,22 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     }
     
     $scope.showLogin = function(){
-      $location.path("/");
+        $location.path("/");
+        $scope.credential = {
+            username : "",
+            password : ""
+        };
     };
     $scope.showSignUp = function(){
-      $location.path("/signup");
+        $scope.newuser = {
+            firstName : "",
+            lastName : "",
+            email : "",
+            username : "",
+            password : "",
+            role : ""
+        };
+        $location.path("/signup");
     };
     
     $scope.callSignUp = function(){
@@ -192,13 +240,11 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
      /*********   Themes   ************* */
     $scope.themes = ["default","purple","red"];
     $scope.dynamicTheme = "default";
-    $scope.getSelectedText = function () {
-        if ($scope.selectedItem !== undefined) {
-            return $scope.selectedItem;
-        } else {
-            return "Please select a theme";
-        }
-    };
+   
+     $scope.changeTheme = function (theme) {
+            $scope.dynamicTheme = theme;
+   };
+    
     /***********   Cookie   ******************** */
     function setCookie(cname, cvalue, exmins) {
       var d = new Date();
@@ -226,11 +272,12 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     
     $scope.GroupUsers = [
         { "userName":"pritesh", "card": "", "played" : false , "online" : false },
-        { "userName":"gargik", "card": "", "played" : false, "online" : false },
+        { "userName":"nitesh", "card": "", "played" : false, "online" : false },
         { "userName":"swapnil", "card": "", "played" : false, "online" : false },
         { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
         { "userName":"freddy", "card": "", "played" : false, "online" : false  },
-        { "userName":"nitesh", "card": "", "played" : false, "online" : false }
+        { "userName":"gargik", "card": "", "played" : false, "online" : false }
+        
     ];
     
     $scope.showCard = false;
@@ -262,6 +309,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         socket.emit("typing");
     });
     
+    $scope.toggleProjectNavLeft = buildToggler("left");
+    
+    
     $scope.toggleRight = buildToggler('right');
     function buildToggler(navID) {
       return function() {
@@ -273,10 +323,10 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
       }
     }
     
-    $scope.close = function () {
-      $mdSidenav('right').close()
+    $scope.close = function (sideNav) {
+      $mdSidenav(sideNav).close()
         .then(function () {
-          $log.debug("close RIGHT is done");
+          //$log.debug("close "+sideNav+" is done");
         });
     };
     
@@ -360,12 +410,94 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         );
     }
     /**************************************************************** */
+    
+    /****************Scrum Master *********************************** */
+    
+    $scope.smProjects = [];
+    $scope.usersList = [];
+    $scope.newProject = {
+        name : ""
+    }
+    function initializeScrum(){
+        //load Projects
+        $http({
+            method: "GET",
+            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                $scope.smProjects = response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+        
+        //load user List
+        $scope.loadUserList = function(){
+            $http({
+                method: "GET",
+                url: "/api/users" //+ $scope.user.role + "/" + $scope.user.username
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                if(response.data){
+                    $scope.usersList = response.data;
+                }else{
+                    window.alert(response.data.result);
+                }
+            }, function errorCallback(response) {
+                console.error(response);
+            });
+        }
+        
+        
+        
+        $scope.createProject = function(project){
+            $http({
+                method: "POST",
+                url: "/api/project",
+                data: $scope.newProject
+                //dataType: "application/json"
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                if(response.data){
+                    console.log(response.data);
+                    $scope.smProjects.push(response.data);
+                }else{
+                    window.alert(response.data.result);
+                }
+            }, function errorCallback(response) {
+                console.error(response);
+            });
+        }
+        
+    }
+    
+    
+    $scope.projects = ["Planning Poker","Hacker Rank"];
+    
+    $scope.getSelectedProject = function () {
+        if ($scope.project !== undefined) {
+            return $scope.project;
+        } else {
+            return "Select a project";
+        }
+    };
+    
+    
+    
 }]);
 
 pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", function($mdThemingProvider,$routeProvider,$compileProvider) {
     $compileProvider.debugInfoEnabled(false);
     $mdThemingProvider.theme("default")
-        .primaryPalette("blue")
+        .primaryPalette("blue",{
+            'default': '700', // by default use shade 400 from the pink palette for primary intentions
+            'hue-1': '500', // use shade 100 for the <code>md-hue-1</code> class
+            'hue-2': '400', // use shade 600 for the <code>md-hue-2</code> class
+            'hue-3': 'A100' // use shade A100 for the <code>md-hue-3</code> class
+        })
         .accentPalette("orange");
     $mdThemingProvider.theme("purple")
         .primaryPalette("purple");
@@ -382,13 +514,13 @@ pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", funct
         //controller: "mainController"
     })
     .when("/signup", {
-        templateUrl:"Client/templates/signup.html",
+        templateUrl:"Client/templates/signup1.html",
     })
     .when("/poker", {
         templateUrl:"Client/templates/poker.html",
         //controller: "fileupload"
     })
-    .when("/scrummaster", {
+    .when("/scrum", {
         templateUrl:"Client/templates/scrumMaster.html",
         //controller: "fileupload"
     })

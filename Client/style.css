@@ -102,3 +102,15 @@ div.pokerPlayer:nth-child(6){
 .chatDiv{
   height: 100%;
 }
+
+.gameUserStoryContent{
+  height: 50%;
+}
+
+.selected {
+color: white;
+  /*-webkit-box-shadow: 0px 0px 5px 0px #b0b0b0;*/
+  background-color: #82B1FF;
+  /*-moz-box-shadow:inset 0px 0px 0px 5px #b0b0b0;
+  box-shadow:inset 0px 0px 0px 5px #b0b0b0;*/
+}

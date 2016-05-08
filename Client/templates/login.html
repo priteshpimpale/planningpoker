@@ -32,7 +32,7 @@
                             <label>username</label>
                             <!--<i class="material-icons">person</i>-->
                             <md-icon class="md-primary">person</md-icon>
-                            <input ng-model="credential.username" name="username" type="text" ng-required="true" minlength="6" maxlength="20">
+                            <input ng-model="credential.username" md-autofocus name="username" type="text" ng-required="true" minlength="6" maxlength="20">
                             <div ng-messages="loginForm.username.$error">
                                 <div ng-message="required">username is required to login.</div>
                                 <div ng-message="minlength">The username should be at least 6 characters.</div>
