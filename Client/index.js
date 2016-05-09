@@ -3,28 +3,63 @@ var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessag
 pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,socket) {
     $scope.user = { username : ""};
     var imagePath = "img/list/60.jpeg";
-    $scope.userStories = [{
-        name: "Brunch this weekend?",
-        story: " I'll be in your neighborhood doing errands",
-        game : [],
-        storyPoint : 8,
-        isCurrent : false
-    },
-    {
-        name: "Brunch this weekend?",
-        story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
-        game : [],
-        storyPoint : 13,
-        isCurrent : true
-    },
-    {
-        name: "Brunch this weekend?",
-        story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
-        game : [],
-        storyPoint : -1,
-        isCurrent : false
-    }];
+    // $scope.userStories = [{
+    //     name: "Brunch this weekend?",
+    //     story: " I'll be in your neighborhood doing errands",
+    //     game : [],
+    //     storyPoint : 8,
+    //     isCurrent : false
+    // },
+    // {
+    //     name: "Brunch this weekend?",
+    //     story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
+    //     game : [],
+    //     storyPoint : 13,
+    //     isCurrent : true
+    // },
+    // {
+    //     name: "Brunch this weekend?",
+    //     story: " I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands. I'll be in your neighborhood doing errands",
+    //     game : [],
+    //     storyPoint : -1,
+    //     isCurrent : false
+    // }];
 
+    $scope.getUserStories = function(project){
+        console.log(project);
+        
+        $http({
+            method: "GET",
+            url: "/api/stories/" + project._id,
+            data: { projectId : $scope.selectedProject._id, userStory : $scope.userStory }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                console.log(response.data);
+                $scope.userStories=response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }
+    $scope.developerProjects = [];
+    function initializeGame(){
+        $http({
+            method: "GET",
+            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                $scope.developerProjects = response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }
     
     ion.sound({
         sounds: [
@@ -82,7 +117,6 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             if(response.data.username){
                 $scope.user = response.data;
                 setCookie("username" , $scope.user._id, 10);
-                $location.path("/poker");
                 $mdToast.show(
                     $mdToast.simple()
                         .textContent("Welcome back " + $scope.user.username)
@@ -191,10 +225,16 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             console.log(response.data);
             if(response.data.username){
                 $scope.user = response.data;
-                $location.path("/poker");
                 socket.initiate(function(){
                     startListning();
                 });
+                if($scope.user.role == "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role == "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
             }else{
                 window.alert(response.data.result);
             }
@@ -218,7 +258,6 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             if(response.data.username){
                 $scope.user = response.data;
                 setCookie("username" , $scope.user._id, 10);
-                $location.path("/poker");
                 $mdToast.show(
                     $mdToast.simple()
                         .textContent("Welcome back " + $scope.user.username)
@@ -226,6 +265,13 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                         .hideDelay(2000)
                         .parent("md-content.md-padding")
                 );
+                if($scope.user.role == "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role == "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
                 socket.initiate(function(){
                     startListning();
                 });
@@ -409,9 +455,31 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                 .parent("md-content.md-padding")
         );
     }
+    
+    $scope.isSelected = function (story, userStories) {
+        angular.forEach(userStories, function (value) {
+            if (value.name === story.name) {
+                value.isCurrent = true;
+            } else {
+                value.isCurrent = false;
+            }
+        });
+    };
+    
+    
+    
     /**************************************************************** */
+    $scope.getSelectedProject = function () {
+        if ($scope.project !== undefined) {
+            return $scope.project;
+        } else {
+            return "Select a project";
+        }
+    };
     
     /****************Scrum Master *********************************** */
+    
+    
     
     $scope.smProjects = [];
     $scope.usersList = [];
@@ -470,21 +538,89 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             }, function errorCallback(response) {
                 console.error(response);
             });
-        }
+         };
         
     }
+    $scope.selectedProject = {};
+    $scope.selectProject = function(project){
+        $scope.selectedProject = project;
+        //$scope.groupMembers = project.members;
+    };
+    
+    //$scope.projects = ["Planning Poker","Hacker Rank"];
+    //$scope.groupMembers = [];
+    $scope.group = {};
+    $scope.group.groupMemberName = "";
     
     
-    $scope.projects = ["Planning Poker","Hacker Rank"];
+    // $scope.querySearch = function(query) {
+    //     var results = query ? $scope.usersList.filter( function filterFn(users) {
+    //         return (users.indexOf('a') === 0);
+    //     } ) : $scope.usersList, deferred;
+    //     return results;
+        
+        
+    // }
+    // function createFilterFor(query) {
+    //     var lowercaseQuery = angular.lowercase(query);
+    //     return function filterFn(users) {
+    //         return (users.indexOf(lowercaseQuery) === 0);
+    //     };
+    // }
     
-    $scope.getSelectedProject = function () {
-        if ($scope.project !== undefined) {
-            return $scope.project;
-        } else {
-            return "Select a project";
+    $scope.addGroupMembers = function(){
+        if($scope.selectedProject.members.indexOf($scope.group.groupMemberName) === -1){
+            $scope.selectedProject.members.push($scope.group.groupMemberName);
+            $scope.groupMemberName = "";
         }
     };
     
+    $scope.removeGroupMember = function(member){
+        if($scope.selectedProject.members.indexOf(member !== -1)){
+            $scope.selectedProject.members.splice($scope.selectedProject.members.indexOf(member),1);
+        }
+    }
+    $scope.userStory = {
+        name : "",
+        description : "" 
+    }
+    $scope.updateGroupMembers = function(){
+        $http({
+            method: "PATCH",
+            url: "/api/project",
+            data: $scope.selectedProject
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                console.log(response.data);
+                $scope.smProjects.push(response.data);
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }
+    
+    
+    
+    $scope.addUserStory = function(){
+        $http({
+            method: "POST",
+            url: "/api/story",
+            data: { projectId : $scope.selectedProject._id, userStory : $scope.userStory }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                console.log(response.data);
+                //$scope.smProjects.push(response.data);
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }
     
     
 }]);
@@ -514,7 +650,7 @@ pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", funct
         //controller: "mainController"
     })
     .when("/signup", {
-        templateUrl:"Client/templates/signup1.html",
+        templateUrl:"Client/templates/signup.html",
     })
     .when("/poker", {
         templateUrl:"Client/templates/poker.html",

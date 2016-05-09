@@ -13,14 +13,13 @@
                             <div layout="row"> 
                                 <h3 flex="90" >{{item.name}}</h3>
                                 <!--<label flex="10" class=" md-hue-3" >{{item.storyPoint}}</label>-->
-                                <md-button fles="10" ng-if="item.storyPoint !== -1" class="md-fab md-mini">{{item.storyPoint}} </md-button>
+                                <md-button fles="10" ng-if="item.storyPoints !== -1" class="md-fab md-mini">{{item.storyPoints}} </md-button>
                             </div>
-                            <p>{{item.story}}</p>
+                            <p>{{item.description}}</p>
                         </div>
-                        
                         <md-divider ng-if="!$last"></md-divider>
                     </md-list-item>
-                    </div>
+                    </div> 
                 </md-list>
         </md-content>
     </md-content>
@@ -73,30 +72,28 @@
             </div>
         </md-toolbar>
         <md-content layout-padding>
-            
-                            <md-list>
-                                <md-subheader class="md-no-sticky">Today</md-subheader>
-                                <md-list-item ng-repeat="message in chatGroup">
-                                    <!--<img ng-src="{{message.face}}?{{$index}}" class="md-avatar" alt="{{message.user}}" />-->
-                                    <div class="md-list-item-text" layout="column">
-                                        <p>{{ message.user }} :{{ message.text }}</p>
-                                    </div>
-                                </md-list-item>
-                                <md-divider ng-if="!$last"></md-divider>
-                                <!--<lable ng-if="typingUser !== ''">{{typingUser}} is typing</lable>-->
-                                <md-list-item >
-                                    <div class="md-list-item-text" layout="row">
-                                        <md-input-container flex class="md-icon-float md-block">
-                                            <label>chat</label>
-                                            <input ng-model="chat.text" name="chatText" type="text">
-                                        </md-input-container>
-                                        <md-button ng-click="sendChat()" class="md-fab md-mini md-primary">
-                                            <md-icon class="md-primary">send</md-icon>
-                                        </md-button>
-                                    </div>
-                                </md-list-item>
-                            </md-list>
-            
+            <md-list>
+                <md-subheader class="md-no-sticky">Today</md-subheader>
+                <md-list-item ng-repeat="message in chatGroup">
+                    <!--<img ng-src="{{message.face}}?{{$index}}" class="md-avatar" alt="{{message.user}}" />-->
+                    <div class="md-list-item-text" layout="column">
+                        <p>{{ message.user }} :{{ message.text }}</p>
+                    </div>
+                </md-list-item>
+                <md-divider ng-if="!$last"></md-divider>
+                <!--<lable ng-if="typingUser !== ''">{{typingUser}} is typing</lable>-->
+                <md-list-item >
+                    <div class="md-list-item-text" layout="row">
+                        <md-input-container flex class="md-icon-float md-block">
+                            <label>chat</label>
+                            <input ng-model="chat.text" name="chatText" type="text">
+                        </md-input-container>
+                        <md-button ng-click="sendChat()" class="md-fab md-mini md-primary">
+                            <md-icon class="md-primary">send</md-icon>
+                        </md-button>
+                    </div>
+                </md-list-item>
+            </md-list>
         </md-content>
     </md-sidenav>
     

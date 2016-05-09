@@ -15,9 +15,9 @@
                     <md-icon>menu</md-icon>
             </md-button>
             <div class="md-toolbar-tools">Planning Poker</div>
-            <md-select ng-model="project" md-selected-text="getSelectedProject()" aria-label="projectSelect">   
+            <md-select ng-model="devProject" md-selected-text="getSelectedProject()" ng-if="user.role === 'Developer'" aria-label="projectSelect">   
                 <md-optgroup label="Projects">
-                    <md-option ng-value="project" ng-repeat="project in projects">{{project}}</md-option>
+                    <md-option ng-value="project" ng-repeat="project in developerProjects" ng-click="getUserStories(project)">{{project.name}}</md-option>
                 </md-optgroup>
             </md-select>
             <md-button ng-if="user.username === ''" ng-click="showLogin()">Sign in</md-button>
