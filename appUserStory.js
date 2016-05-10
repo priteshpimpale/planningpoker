@@ -165,8 +165,6 @@ module.exports = {
                             }
                         });
                     });
-
-
                 }
             } else {
                 res.send({ "result": "invalid session" });
@@ -180,7 +178,6 @@ module.exports = {
                     console.log(doc);
                 }
                 callback(err, doc);
-
             });
         }
 

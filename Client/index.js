@@ -2,7 +2,7 @@ var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessag
 
 pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,socket) {
     $scope.user = { username : ""};
-    var imagePath = "img/list/60.jpeg";
+    
     // $scope.userStories = [{
     //     name: "Brunch this weekend?",
     //     story: " I'll be in your neighborhood doing errands",
@@ -25,8 +25,22 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     //     isCurrent : false
     // }];
 
+    $scope.GroupUsers = [];
+    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
+    
     $scope.getUserStories = function(project){
+        
+        console.log($scope.devProjectIndex);
         console.log(project);
+        $scope.devSelectedProject = project;
+        $scope.GroupUsers = [];
+        angular.forEach($scope.devSelectedProject.members,function(member){
+            $scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
+        });
+        
+        socket.initiate(function(){
+            startListning();
+        });
         
         $http({
             method: "GET",
@@ -133,9 +147,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                     initializeGame();
                 }
                 
-                socket.initiate(function(){
-                    startListning();
-                });
+                // socket.initiate(function(){
+                //     startListning();
+                // });
             }else{
                 window.alert(response.data.result);
                 $location.path("/");
@@ -225,9 +239,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             console.log(response.data);
             if(response.data.username){
                 $scope.user = response.data;
-                socket.initiate(function(){
-                    startListning();
-                });
+                // socket.initiate(function(){
+                //     startListning();
+                // });
                 if($scope.user.role == "Scrum Master"){
                     $location.path("/scrum");
                     initializeScrum();
@@ -272,9 +286,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                     $location.path("/poker");
                     initializeGame();
                 }
-                socket.initiate(function(){
-                    startListning();
-                });
+                // socket.initiate(function(){
+                //     startListning();
+                // });
             }else{
                 window.alert(response.data.result);
             }
@@ -316,15 +330,15 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     /******************************************** */
     $scope.cards = [{ value: 0, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
     
-    $scope.GroupUsers = [
-        { "userName":"pritesh", "card": "", "played" : false , "online" : false },
-        { "userName":"nitesh", "card": "", "played" : false, "online" : false },
-        { "userName":"swapnil", "card": "", "played" : false, "online" : false },
-        { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
-        { "userName":"freddy", "card": "", "played" : false, "online" : false  },
-        { "userName":"gargik", "card": "", "played" : false, "online" : false }
+    // $scope.GroupUsers = [
+    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
+    //     { "userName":"nitesh", "card": "", "played" : false, "online" : false },
+    //     { "userName":"swapnil", "card": "", "played" : false, "online" : false },
+    //     { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
+    //     { "userName":"freddy", "card": "", "played" : false, "online" : false  },
+    //     { "userName":"gargik", "card": "", "played" : false, "online" : false }
         
-    ];
+    // ];
     
     $scope.showCard = false;
     
@@ -333,11 +347,15 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     };
     /***************    game controls   ********************************* */
     $scope.playCard = function(card){
-        socket.emit("playCard",card);
+        if($scope.gameStarted){
+            socket.emit("playCard", { "card" : card , "projectId" : $scope.devSelectedProject._id });
+        }else{
+            
+        }
     };
     
     $scope.showCards = function(card){
-        socket.emit("showCards");
+        socket.emit("showCards", { "projectId" : $scope.selectedProject._id });
     };
     $scope.chatGroup = [];
     
@@ -347,24 +365,27 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     
     $scope.sendChat = function(){
         $scope.chatGroup.push({ "user" :$scope.user.username, "text" : $scope.chat.text });
-        socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text })
+        if($scope.user.role === "Scrum Master"){
+            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.selectedProject._id })
+        }else if($scope.user.role === "Developer"){
+            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.devSelectedProject._id })
+        }
         $scope.chat.text = "";
     };
     
-    $scope.$watch($scope.chat,function(newVal,oldVal){
-        socket.emit("typing");
-    });
+    // $scope.$watch($scope.chat,function(newVal,oldVal){
+    //     socket.emit("typing");
+    // });
     
     $scope.toggleProjectNavLeft = buildToggler("left");
-    
-    
     $scope.toggleRight = buildToggler('right');
+    
     function buildToggler(navID) {
       return function() {
         $mdSidenav(navID)
           .toggle()
           .then(function () {
-            $log.debug("toggle " + navID + " is done");
+            //$log.debug("toggle " + navID + " is done");
           });
       }
     }
@@ -438,12 +459,71 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         socket.on("showCard",function(){
             ion.sound.play("button_tiny");
             $scope.showCard = true;
+            $scope.gameStarted = false;
         });
         
         socket.on("chatMessage",function(message){
             $scope.chatGroup.push(message);
             ion.sound.play("chat_alertshort");
         });
+        
+        socket.on("selectStory",function(userStory){
+            angular.forEach($scope.userStories, function (story) {
+                if (story._id === userStory.storyId) {
+                    story.isCurrent = true;
+                } else {
+                    story.isCurrent = false;
+                }
+            });
+            ion.sound.play("chat_alertshort");
+        });
+        $scope.gameStarted = false;
+        
+        socket.on("gameStart",function(userStory){
+            $scope.gameStarted = true;
+            $scope.showCard = false;
+            angular.forEach($scope.GroupUsers,function(member){
+                member.card = "";
+                member.played = "";
+                //$scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
+            });
+            
+            ion.sound.play("bell_ring",{ loop: 3 });
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent("Game started")
+                    .position("center center")
+                    .hideDelay(2000)
+                    .parent("div.poker")
+            );
+        });
+        
+        socket.on("chatStart",function(message){
+            $scope.chatStarted = message.isStartChat;
+            if($scope.chatStarted){
+                $scope.toggleRight();
+            }else{
+                $scope.close('right');
+            }
+            ion.sound.play("bell_ring",{ loop: 1 });
+        });
+        
+        socket.on("saveStoryPoint", function(message){
+            angular.forEach($scope.userStories,function(story){
+                if(story._id === message.storyId ){
+                    story.storyPoints = message.storyPoints;
+                    //story.isCurrent = false;
+                }
+            });
+        });
+        
+        
+        // socket.on("gameEnd",function(userStory){
+        //     $scope.gameStarted = false;
+        //     ion.sound.play("bell_ring",{ loop: 1 });
+        // });
+        
+        
     }
     
     function showToast(message){
@@ -456,15 +536,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         );
     }
     
-    $scope.isSelected = function (story, userStories) {
-        angular.forEach(userStories, function (value) {
-            if (value.name === story.name) {
-                value.isCurrent = true;
-            } else {
-                value.isCurrent = false;
-            }
-        });
-    };
+    
     
     
     
@@ -504,6 +576,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         
         //load user List
         $scope.loadUserList = function(){
+           
             $http({
                 method: "GET",
                 url: "/api/users" //+ $scope.user.role + "/" + $scope.user.username
@@ -544,6 +617,33 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     $scope.selectedProject = {};
     $scope.selectProject = function(project){
         $scope.selectedProject = project;
+        $scope.GroupUsers = [];
+        angular.forEach($scope.selectedProject.members,function(member){
+            $scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
+        });
+        
+         socket.initiate(function(){
+            startListning();
+        });
+        $http({
+            method: "GET",
+            url: "/api/stories/" + $scope.selectedProject._id
+            //data: { projectId : $scope.selectedProject._id, userStory : $scope.userStory }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                console.log(response.data);
+                $scope.userStories=response.data;
+                angular.forEach($scope.userStories,function(us){
+                    us.isCurrent = false;
+                });
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+        
         //$scope.groupMembers = project.members;
     };
     
@@ -621,6 +721,35 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             console.error(response);
         });
     }
+    
+    $scope.selecteUserStoryForGame = function (selectedStory) {
+        angular.forEach($scope.userStories, function (story) {
+            if (story._id === selectedStory._id) {
+                story.isCurrent = true;
+                socket.emit("selectStory",{ storyId: selectedStory._id, "projectId" : $scope.selectedProject._id });
+            } else {
+                story.isCurrent = false;
+            }
+        });
+    };
+    
+    $scope.startGame =function(){
+        socket.emit("gameStart",{ "projectId" : $scope.selectedProject._id });
+    };
+    $scope.chatStarted = false;
+    $scope.startChat =function(){
+        if(!$scope.chatStarted){
+            socket.emit("chatStart",{ "projectId" : $scope.selectedProject._id, "isStartChat": true });
+            //$scope.chatStarted = true;
+        }else{
+            socket.emit("chatStart",{ "projectId" : $scope.selectedProject._id, "isStartChat": false });
+            //$scope.chatStarted = false;
+        }
+    };
+    
+    $scope.saveStoryPoints=function(item){
+        socket.emit("saveStoryPoint", { storyId: item._id, "projectId" : $scope.selectedProject._id , "storyPoints" : item.storyPoints });
+    };
     
     
 }]);

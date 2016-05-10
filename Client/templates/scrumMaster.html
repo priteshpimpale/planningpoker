@@ -1,8 +1,8 @@
 <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
     <md-toolbar class="md-theme-light md-toolbar-tools">
         <h1>Projects</h1>
-        <md-button ng-click="close()" class="md-primary">
-            Close Sidenav
+        <md-button ng-click="close('left')" class="md-primary">
+            <md-icon>close</md-icon>
         </md-button>
     </md-toolbar>
     <md-content layout-padding>
@@ -20,7 +20,9 @@
         <md-list ng-cloak>
             <md-list-item ng-repeat="project in smProjects">
                 <p> {{ project.name }} </p>
-                <md-button class="md-secondary" ng-click="selectProject(project)"></md-button>
+                <md-button class="md-primary" ng-click="selectProject(project)">
+                    <md-icon>check</md-icon>
+                    </md-button>
             </md-list-item>
         </md-list>
 
@@ -28,11 +30,11 @@
 </md-sidenav>
 <md-tabs md-dynamic-height md-border-bottom>
     <md-tab label="Members">
-        <md-tab-body>
-        <md-content class="md-padding">
-            <h1 class="md-display-2">{{selectedProject.name}}</h1>
-            
-<!--            
+        <md-tab-body layout-fill>
+            <md-content class="md-padding" flex>
+                <h1 class="md-title" ng-if="selectedProject.name">Project - {{selectedProject.name}}</h1>
+
+                <!--            
             md-selected-item="ctrl.selectedItem"
                 md-search-text-change="ctrl.searchTextChange(ctrl.searchText)"
                 md-search-text="ctrl.searchText"
@@ -40,7 +42,7 @@
                 md-items="item in ctrl.querySearch(ctrl.searchText)"
                 md-item-text="item.display"-->
 
-            <!--<md-autocomplete
+                <!--<md-autocomplete
                 md-selected-item="selectedUser"
                 md-item-text="user"
                 md-min-length="0"
@@ -55,168 +57,178 @@
                 <a ng-click="addNewUser(searchText)">Create a new one!</a>
                 </md-not-found>
             </md-autocomplete>-->
-            <md-list flex="25">
-                <md-list-item ng-repeat="member in selectedProject.members" class="secondary-button-padding">
-                    <p>{{member}}</p>
-                    <md-button class="md-secondary" ng-click="removeGroupMember(member)"><md-icon>close</md-icon></md-button>
-                </md-list-item>
-            </md-list>
-<!--            
+                <div layout="column">
+                    <md-whiteframe layout-padding class="md-whiteframe-6dp addStoryCard" flex="30" layout layout-align="left center">
+                        <md-content>
+                            <md-list flex="25">
+                                <md-list-item ng-repeat="member in selectedProject.members" class="secondary-button-padding">
+                                    <p>{{member}}</p>
+                                    <md-button class="md-secondary" ng-click="removeGroupMember(member)">
+                                        <md-icon>close</md-icon>
+                                    </md-button>
+                                </md-list-item>
+                            </md-list>
+                            <!--            
             <div layout="column" >
                 <label ></label>
             </div>-->
-            
-            <div layout="row">
-                <md-select flex="20" placeholder="Select user" ng-model="group.groupMemberName" md-on-open="loadUserList()" style="min-width: 200px;">
-                    <md-option ng-value="user" ng-repeat="user in usersList">{{user}}</md-option>
-                </md-select>
-                <md-button ng-click="addGroupMembers()" class="md-primary"><md-icon>add</md-icon></md-button>
-            </div>
-            <md-button ng-click="updateGroupMembers()" class="md-primary md-raised">Update</md-button>
-            
-            
-        </md-content>
+
+                            <div layout="row">
+                                <md-select flex="20" placeholder="Select user" ng-model="group.groupMemberName" md-on-open="loadUserList()" style="min-width: 50em;">
+                                    <md-option ng-value="user" ng-repeat="user in usersList">{{user}}</md-option>
+                                </md-select>
+                                <md-button ng-click="addGroupMembers()" class="md-primary">
+                                    <md-icon>add</md-icon>
+                                </md-button>
+                            </div>
+                            <md-button ng-click="updateGroupMembers()" class="md-primary md-raised">Update</md-button>
+                        </md-content>
+                    </md-whiteframe>
+                </div>
+
+            </md-content>
         </md-tab-body>
     </md-tab>
     <md-tab label="User Stories">
         <md-content class="md-padding">
-            <h1 class="md-display-2">{{selectedProject.name}}</h1>
-            
-             <div layout="column">
-                <md-input-container>
-                    <label>Story Name</label>
-                    <input ng-model="userStory.name">
-                </md-input-container>
-                <md-input-container class="md-block">
-                    <label>Description</label>
-                    <textarea ng-model="userStory.description" md-maxlength="500" rows="5" md-select-on-focus></textarea>
-                </md-input-container>
-                <md-button ng-click="addUserStory()" class="md-primary md-raised">Add</md-button>
+            <h3 class="md-title" ng-if="selectedProject.name">Project - {{selectedProject.name}}</h3>
+
+            <div layout="column" layout-fill>
+                <md-whiteframe flex layout-padding class="md-whiteframe-6dp addStoryCard" layout layout-align="left center">
+                    <md-content flex="100">
+                        <md-input-container>
+                            <label>Story Name</label>
+                            <input ng-model="userStory.name">
+                        </md-input-container>
+                        <md-input-container class="md-block">
+                            <label>Description</label>
+                            <textarea ng-model="userStory.description" md-maxlength="500" rows="5" md-select-on-focus></textarea>
+                        </md-input-container>
+                        <md-button ng-click="addUserStory()" class="md-primary md-raised">Add</md-button>
+                    </md-content>
+                </md-whiteframe>
             </div>
-            
-            
         </md-content>
     </md-tab>
     <md-tab label="Poker">
         <md-content class="md-padding">
 
-           <div layout="row" class="poker">
-               <md-content flex="25" layout-fill>
-                   <md-toolbar md-scroll-shrink="" class="md-theme-light md-hue-1">
-                       <h2 class="md-toolbar-tools">
+            <div layout="row" class="poker">
+                <md-content flex="25" layout-fill>
+                    <md-toolbar md-scroll-shrink="" class="md-theme-light md-hue-1">
+                        <h2 class="md-toolbar-tools">
                                  <span>Product Backlog</span>
                             </h2>
-                   </md-toolbar>
-                   <md-content layout="column" layout-align="center">
-                       <md-list>
-                           <div ng-class="{selected: item.isCurrent}" ng-repeat="item in userStories">
-                               <md-list-item class="md-3-line md-long-text">
-                                   <div class="md-list-item-text">
-                                       <div layout="row">
-                                           <h3 flex="90">{{item.name}}</h3>
-                                           <!--<label flex="10" class=" md-hue-3" >{{item.storyPoint}}</label>-->
-                                           <md-button fles="10" ng-if="item.storyPoint !== -1" class="md-fab md-mini">{{item.storyPoint}} </md-button>
-                                       </div>
-                                       <p>{{item.story}}</p>
-                                   </div>
-                               </md-list-item>
-                               <div layout="row">
-                                   <md-input-container class="md-block" flex="50" ng-disabled="!item.isCurrent">
-                                       <label>Points</label>
-                                       <input ng-model="user.address" ng-disabled="!item.isCurrent">
-                                   </md-input-container>
-                                   <md-button class="md-fab md-mini" aria-label="save" ng-disabled="!item.isCurrent">
-                                       <md-icon>save</md-icon>
-                                   </md-button>
+                    </md-toolbar>
+                    <md-content layout="column" layout-align="center">
+                        <md-list>
+                            <div ng-class="{selected: item.isCurrent}" ng-repeat="item in userStories">
+                                <md-list-item class="md-3-line md-long-text">
+                                    <div class="md-list-item-text">
+                                        <div layout="row">
+                                            <h3 flex="90">{{item.name}}</h3>
+                                            <!--<label flex="10" class=" md-hue-3" >{{item.storyPoint}}</label>-->
+                                            <md-button fles="10" ng-if="item.storyPoints !== -1" class="md-fab md-mini">{{item.storyPoints}} </md-button>
+                                        </div>
+                                        <p>{{item.description}}</p>
+                                    </div>
+                                </md-list-item>
+                                <div layout="row">
+                                    <md-input-container class="md-block" flex="50" ng-disabled="!item.isCurrent">
+                                        <label>Points</label>
+                                        <input ng-model="item.storyPoints" ng-disabled="!item.isCurrent">
+                                    </md-input-container>
+                                    <md-button class="md-fab md-mini" aria-label="save" ng-disabled="!item.isCurrent" ng-click="saveStoryPoints(item)">
+                                        <md-icon>save</md-icon>
+                                    </md-button>
 
-                                   <md-button class="md-raised md-primary selectUserStory" flex="30" ng-click="isSelected(item,userStories)" ng-disabled="item.isCurrent">Select</md-button>
-                               </div>
-                               <md-divider ng-if="!$last"></md-divider>
-                           </div>
-                       </md-list>
-                   </md-content>
-               </md-content>
-               <div flex="75">
-                   <div layout="column">
-                       <div layout="row" layout-align="center center">
-                           <div flex="5"></div>
-                           <div flex="75" layout="column" class="pokerTableDiv">
-                               <div class="userDiv"></div>
-                               <img src="Client/images/table-darkergreen-nologo.png" class="pokerTable" />
-                               <div>
-                                   <img src="Client/images/side-B/recto.png" ng-if="!showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers"
-                                   />
-                                   <img src="Client/images/side-A/{{player.card}}" ng-if="showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers"
-                                   />
-                               </div>
-                               <div>
-                                   <div class="pokerPlayer" ng-repeat="player in GroupUsers">
-                                       <md-icon ng-if="player.online" class="md-primary">person</md-icon>
-                                       <md-icon ng-if="!player.online" class="">person</md-icon>
+                                    <md-button class="md-raised md-primary selectUserStory" flex="30" ng-click="selecteUserStoryForGame(item)" ng-disabled="item.isCurrent">Select</md-button>
+                                </div>
+                                <md-divider ng-if="!$last"></md-divider>
+                            </div>
+                        </md-list>
+                    </md-content>
+                </md-content>
+                <div flex="75">
+                    <div layout="column">
+                        <div layout="row" layout-align="center center">
+                            <div flex="5"></div>
+                            <div flex="75" layout="column" class="pokerTableDiv">
+                                <div class="userDiv"></div>
+                                <img src="Client/images/table-darkergreen-nologo.png" class="pokerTable" />
+                                <div>
+                                    <img src="Client/images/side-B/recto.png" ng-if="!showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers"
+                                    />
+                                    <img src="Client/images/side-A/{{player.card}}" ng-if="showCard" ng-show="player.played" class="pokerCard" ng-repeat="player in GroupUsers"
+                                    />
+                                </div>
+                                <div>
+                                    <div class="pokerPlayer" ng-repeat="player in GroupUsers">
+                                        <md-icon ng-if="player.online" class="md-primary">person</md-icon>
+                                        <md-icon ng-if="!player.online" class="">person</md-icon>
                                         <label>{{player.userName}}</label>
-                                   </div>
-                               </div>
-                               <div class="userDiv"></div>
-                           </div>
-                           
-                           <div flex="45" class="chatDiv">
+                                    </div>
+                                </div>
+                                <div class="userDiv"></div>
+                            </div>
 
-                           </div>
-                           <md-button ng-click="toggleRight()" ng-hide="isOpenRight()" class="md-primary">
-                               Show Chat
-                           </md-button>
-                           <!--<md-button ng-click="showCards()">Show Cards</md-button>-->
-                       </div>
-                       <div layout="row">
-                       
-                       <div><button class="md-raised md-primary md-button md-ink-ripple md-default-theme" type="button" ng-transclude="" aria-label="Primary" ng-Click="showCards()"><span>Display Cards</span></button></div>
-                       <div><button class="md-raised md-primary md-button md-ink-ripple md-default-theme" type="button" ng-transclude="" aria-label="Primary"><span>Start Chat</span></button></div>
-                       <div><button class="md-raised md-primary md-button md-ink-ripple md-default-theme" type="button" ng-transclude="" aria-label="Primary"><span>Start Game</span></button></div>
-                       </div>
-                       <!--<div layout="row" class="gridListdemoBasicUsage">
+                            <div flex="45" class="chatDiv">
+
+                            </div>
+                            <!--<md-button ng-click="toggleRight()" ng-hide="isOpenRight()" class="md-primary">
+                                Show Chat
+                            </md-button>-->
+                            <!--<md-button ng-click="showCards()">Show Cards</md-button>-->
+                        </div>
+                        <div layout="row">
+                            <md-button class="md-raised md-primary" type="button" ng-Click="showCards()">Show Cards</md-button>
+                            <md-button class="md-raised md-primary" type="button" ng-click="startChat()"><span ng-show="!chatStarted">Start Chat</span><span ng-show="chatStarted">Stop Chat</span></md-button>
+                            <md-button class="md-raised md-primary" type="button" ng-click="startGame()">Start Game</md-button>
+                        </div>
+                        <!--<div layout="row" class="gridListdemoBasicUsage">
                            <md-card ng-repeat="card in cards">
                                <img ng-src="Client/images/side-A/{{card.imagePath}}" ng-click="playCard(card.value)" class="md-card-image" alt="Washed Out">
                            </md-card>
                        </div>-->
-                   </div>
-               </div>
+                    </div>
+                </div>
 
-               <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
-                   <md-toolbar class="md-theme-light">
-                       <div class="md-toolbar-tools">
-                           <h1>Group Chat</h1>
-                           <md-button ng-click="close('right')">
-                               <md-icon>close</md-icon>
-                           </md-button>
-                       </div>
-                   </md-toolbar>
-                   <md-content layout-padding>
+                <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
+                    <md-toolbar class="md-theme-light">
+                        <div class="md-toolbar-tools">
+                            <h1>Group Chat</h1>
+                            <md-button ng-click="close('right')">
+                                <md-icon>close</md-icon>
+                            </md-button>
+                        </div>
+                    </md-toolbar>
+                    <md-content layout-padding>
 
-                       <md-list>
-                           <md-subheader class="md-no-sticky">Today</md-subheader>
-                           <md-list-item ng-repeat="message in chatGroup">
-                               <!--<img ng-src="{{message.face}}?{{$index}}" class="md-avatar" alt="{{message.user}}" />-->
-                               <div class="md-list-item-text" layout="column">
-                                   <p>{{ message.user }} :{{ message.text }}</p>
-                               </div>
-                           </md-list-item>
-                           <md-divider ng-if="!$last"></md-divider>
-                           <!--<lable ng-if="typingUser !== ''">{{typingUser}} is typing</lable>-->
-                           <md-list-item>
-                               <div class="md-list-item-text" layout="row">
-                                   <md-input-container flex class="md-icon-float md-block">
-                                       <label>chat</label>
-                                       <input ng-model="chat.text" name="chatText" type="text">
-                                       </md-input-container>
-                                   <md-button ng-click="sendChat()" class="md-fab md-mini md-primary">
-                                       <md-icon class="md-primary">send</md-icon>
-                                   </md-button>
-                               </div>
-                           </md-list-item>
-                       </md-list>
-                   </md-content>
-               </md-sidenav>
-           </div>
-       </md-content>
+                        <md-list>
+                            <md-subheader class="md-no-sticky">Today</md-subheader>
+                            <md-list-item ng-repeat="message in chatGroup">
+                                <!--<img ng-src="{{message.face}}?{{$index}}" class="md-avatar" alt="{{message.user}}" />-->
+                                <div class="md-list-item-text" layout="column">
+                                    <p>{{ message.user }} :{{ message.text }}</p>
+                                </div>
+                            </md-list-item>
+                            <md-divider ng-if="!$last"></md-divider>
+                            <!--<lable ng-if="typingUser !== ''">{{typingUser}} is typing</lable>-->
+                            <md-list-item>
+                                <div class="md-list-item-text" layout="row">
+                                    <md-input-container flex class="md-icon-float md-block">
+                                        <label>chat</label>
+                                        <input ng-model="chat.text" name="chatText" type="text">
+                                    </md-input-container>
+                                    <md-button ng-click="sendChat()" class="md-fab md-mini md-primary">
+                                        <md-icon class="md-primary">send</md-icon>
+                                    </md-button>
+                                </div>
+                            </md-list-item>
+                        </md-list>
+                    </md-content>
+                </md-sidenav>
+            </div>
+        </md-content>
     </md-tab>
 </md-tabs>
