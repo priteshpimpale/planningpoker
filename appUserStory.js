@@ -73,7 +73,7 @@ module.exports = {
                             if (err) {
                                 //throw err;
                                 console.log(err);
-                                res.send(err);
+                                res.send();
                             } else {
                                 console.log(result);
                                 var story = result.ops[0];
@@ -194,26 +194,27 @@ module.exports = {
                             { new: true }, // options - new to return the modified document
                             function (error, doc) {
                                 console.log(error);
-                                if(!error){
-                                    db.collection(projectInfoCollection).findOne( { _id : new ObjectID(data._id)},function (er, result) {
-                                        if (er) {
-                                            //throw err;
-                                            console.log(er);
-                                            res.send(er);
-                                        } else {
-                                            console.log(result);
-                                            res.send(result);
-                                        }
-                                    });
+                                res.send(doc.value);
+                                // if(!error){
+                                //     db.collection(projectInfoCollection).findOne( { _id : new ObjectID(data._id)},function (er, result) {
+                                //         if (er) {
+                                //             //throw err;
+                                //             console.log(er);
+                                //             res.send();
+                                //         } else {
+                                //             console.log(result);
+                                //             res.send(result);
+                                //         }
+                                //     });
                                     
                                     
                                     
                                     
-                                    db.close();
-                                    //res.send(doc);
-                                }else{
-                                    console.log(error);
-                                }
+                                //     db.close();
+                                //     //res.send(doc);
+                                // }else{
+                                //     console.log(error);
+                                // }
                                 
                             });
                     } else {

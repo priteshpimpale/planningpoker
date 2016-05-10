@@ -11,11 +11,11 @@
 <body ng-app="planningPoker">
     <div ng-controller="PokerCtrl" ng-cloak="" class="gridListdemoBasicUsage" md-theme="{{ dynamicTheme }}" md-theme-watch>
         <md-toolbar layout="row">
-            <md-button ng-click="toggleProjectNavLeft()" class="">
+            <md-button ng-click="toggleProjectNavLeft()" ng-if="user.role==='Scrum Master'">
                     <md-icon>menu</md-icon>
             </md-button>
             <div class="md-toolbar-tools">Planning Poker</div>
-            <md-select ng-model="devProjectIndex" md-selected-text="getSelectedProject()" ng-if="user.role === 'Developer'" aria-label="projectSelect">   
+            <md-select ng-model="devProjectIndex" placeholder="Select a Project" ng-if="user.role === 'Developer'" aria-label="projectSelect">   
                 <md-optgroup label="Projects">
                     <md-option ng-value="project" ng-repeat="project in developerProjects" ng-click="getUserStories(project)">{{project.name}}</md-option>
                 </md-optgroup>

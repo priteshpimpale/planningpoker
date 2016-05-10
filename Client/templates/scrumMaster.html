@@ -81,7 +81,7 @@
                                     <md-icon>add</md-icon>
                                 </md-button>
                             </div>
-                            <md-button ng-click="updateGroupMembers()" class="md-primary md-raised">Update</md-button>
+                            <md-button ng-click="updateGroupMembers($event)" class="md-primary md-raised">Update</md-button>
                         </md-content>
                     </md-whiteframe>
                 </div>
@@ -104,7 +104,7 @@
                             <label>Description</label>
                             <textarea ng-model="userStory.description" md-maxlength="500" rows="5" md-select-on-focus></textarea>
                         </md-input-container>
-                        <md-button ng-click="addUserStory()" class="md-primary md-raised">Add</md-button>
+                        <md-button ng-click="addUserStory($event)" class="md-primary md-raised">Add</md-button>
                     </md-content>
                 </md-whiteframe>
             </div>
@@ -112,9 +112,8 @@
     </md-tab>
     <md-tab label="Poker">
         <md-content class="md-padding">
-
-            <div layout="row" class="poker">
-                <md-content flex="25" layout-fill>
+            <div layout="row" class="poker" layout-fill>
+                <md-content flex="25" style="height:550px">
                     <md-toolbar md-scroll-shrink="" class="md-theme-light md-hue-1">
                         <h2 class="md-toolbar-tools">
                                  <span>Product Backlog</span>

@@ -1,6 +1,6 @@
 var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessages"]);
 
-pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,socket) {
+pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","$mdDialog","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,$mdDialog,socket) {
     $scope.user = { username : ""};
     
     // $scope.userStories = [{
@@ -488,7 +488,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                 //$scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
             });
             
-            ion.sound.play("bell_ring",{ loop: 3 });
+            ion.sound.play("bell_ring",{ loop: 1 });
             $mdToast.show(
                 $mdToast.simple()
                     .textContent("Game started")
@@ -536,22 +536,16 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         );
     }
     
-    
-    
-    
-    
     /**************************************************************** */
     $scope.getSelectedProject = function () {
-        if ($scope.project !== undefined) {
-            return $scope.project;
+        if ($scope.devSelectedProject !== undefined) {
+            return $scope.devSelectedProject;
         } else {
             return "Select a project";
         }
     };
     
     /****************Scrum Master *********************************** */
-    
-    
     
     $scope.smProjects = [];
     $scope.usersList = [];
@@ -605,6 +599,8 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                 if(response.data){
                     console.log(response.data);
                     $scope.smProjects.push(response.data);
+                    $scope.newProject = {};
+                    $scope.newProject.name = "";
                 }else{
                     window.alert(response.data.result);
                 }
@@ -684,7 +680,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         name : "",
         description : "" 
     }
-    $scope.updateGroupMembers = function(){
+    $scope.updateGroupMembers = function(ev){
         $http({
             method: "PATCH",
             url: "/api/project",
@@ -693,6 +689,16 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             console.log(response.data);
             if(response.data){
                 console.log(response.data);
+                $mdDialog.show(
+                    $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .clickOutsideToClose(true)
+                        .title('Success')
+                        .textContent('Users Updated successfully!')
+                        .ariaLabel('Alert Dialog')
+                        .ok('OK')
+                        .targetEvent(ev)
+                 );
                 $scope.smProjects.push(response.data);
             }else{
                 window.alert(response.data.result);
@@ -704,7 +710,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     
     
     
-    $scope.addUserStory = function(){
+    $scope.addUserStory = function(ev){
         $http({
             method: "POST",
             url: "/api/story",
@@ -714,6 +720,17 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             if(response.data){
                 console.log(response.data);
                 //$scope.smProjects.push(response.data);
+                 $mdDialog.show(
+                    $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .clickOutsideToClose(true)
+                        .title('Success Message')
+                        .textContent('User Story Added successfully!')
+                        .ariaLabel('Alert Dialog')
+                        .ok('OK')
+                        .targetEvent(ev)
+                 );
+                  $scope.userStory={};
             }else{
                 window.alert(response.data.result);
             }
