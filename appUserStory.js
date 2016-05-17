@@ -1,8 +1,10 @@
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
+"use strict";
 module.exports = {
     addRoutes: function (app, MongoClient, mongodbUrl) {
         var bodyParser = require("body-parser");
         app.use(bodyParser.json());
-        var ObjectID = require('mongodb').ObjectID;
+        var ObjectID = require("mongodb").ObjectID;
         var storyCollection = "userStories",
             projectInfoCollection = "projectInfo";
 
@@ -22,22 +24,21 @@ module.exports = {
         // get userStories by Project
         app.get("/api/stories/:project", function (req, res) {
             if (req.session) {
-                var sess = req.session,
-                    projectId = req.params.project,
-                    userStories = [];
+                var projectId = req.params.project;
                 MongoClient.connect(mongodbUrl, function (err, db) {
                     if (!err) {
                         /// return inserted user object
                         db.collection(projectInfoCollection).findOne({ _id: new ObjectID(projectId) },function (err, result) {
+                            var userStoriesIdsArr;
                             if (err) {
                                 //throw err;
                                 console.log(err);
                             } else {
                                 console.log(result);
-                                var userStoriesIdsArr = result.userStories;
-                            };
+                                userStoriesIdsArr = result.userStories;
+                            }
                             var uStoryObj = [];
-                            userStoriesIdsArr.forEach(function (i,item){
+                    	    userStoriesIdsArr.forEach(function (i,item){
                                 uStoryObj.push(new ObjectID(item)); 
                             }); 
                             // userStoriesIdsArr.forEach(function (i) {
@@ -61,7 +62,6 @@ module.exports = {
         // add new userStory
         app.post("/api/story", function (req, res) {
             if (req.session) {
-                var sess = req.session;
                 var story = req.body.userStory;
                 story.game = [];
                 story.storyPoints = -1;
@@ -179,13 +179,12 @@ module.exports = {
                 }
                 callback(err, doc);
             });
-        }
+        };
 
         app.patch("/api/project", function (req,res) {
             console.log(req.body);
             var data = req.body;
             if (req.session) {
-                var sess = req.session;
                 MongoClient.connect(mongodbUrl, function (err, db) {
                     if (!err) {
                         findandUpdateDoc(db, projectInfoCollection, { "_id": new ObjectID(data._id) },
@@ -228,4 +227,4 @@ module.exports = {
         });
 
     }
-}
+};

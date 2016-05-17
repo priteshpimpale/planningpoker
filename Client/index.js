@@ -1,3 +1,6 @@
+/* jshint browser: true, jquery: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true*/
+/* globals io,angular,ion */
+"use strict";
 var pokerApp = angular.module("planningPoker", ["ngMaterial","ngRoute","ngMessages"]);
 
 pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSidenav","$mdDialog","socket", function ($scope, $http, $location, $mdToast,$mdSidenav,$mdDialog,socket) {
@@ -25,286 +28,6 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     //     isCurrent : false
     // }];
 
-    $scope.GroupUsers = [];
-    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
-    
-    $scope.getUserStories = function(project){
-        
-        console.log($scope.devProjectIndex);
-        console.log(project);
-        $scope.devSelectedProject = project;
-        $scope.GroupUsers = [];
-        angular.forEach($scope.devSelectedProject.members,function(member){
-            $scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
-        });
-        
-        socket.initiate(function(){
-            startListning();
-        });
-        
-        $http({
-            method: "GET",
-            url: "/api/stories/" + project._id,
-            data: { projectId : $scope.selectedProject._id, userStory : $scope.userStory }
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data){
-                console.log(response.data);
-                $scope.userStories=response.data;
-            }else{
-                window.alert(response.data.result);
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-    }
-    $scope.developerProjects = [];
-    function initializeGame(){
-        $http({
-            method: "GET",
-            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data){
-                $scope.developerProjects = response.data;
-            }else{
-                window.alert(response.data.result);
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-    }
-    
-    ion.sound({
-        sounds: [
-            {
-                name: "bell_ring"
-            },{
-                name: "chat_alertshort"
-            },{
-                name: "water_droplet_3"
-            },{
-                name: "button_tiny"
-            }
-            // {
-            //     name: "notify_sound",
-            //     volume: 0.2
-            // },
-            // {
-            //     name: "alert_sound",
-            //     volume: 0.3,
-            //     preload: false
-            // }
-        ],
-        volume: 0.8,
-        path: "Client/ion.sound-3.0.7/sounds/",
-        preload: true
-    });
-    
-    ion.sound({
-        sounds: [
-            {
-                name: "cardPlace1"
-            },{
-                name: "cardPlace2"
-            }
-        ],
-        volume: 0.8,
-        path: "Client/alerts/Casino sound package/",
-        preload: true
-    });
-    
-    
-    
-    //ion.sound.play("chat_alertshort");
-    
-    
-    
-    var cookie = getCookie("username");
-    if(cookie !== ""){
-        $http({
-            method: "POST",
-            url: "/api/userlogin",
-            data: { usernameCookie : cookie }
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data.username){
-                $scope.user = response.data;
-                setCookie("username" , $scope.user._id, 10);
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent("Welcome back " + $scope.user.username)
-                        .position("top right")
-                        .hideDelay(2000)
-                        .parent("div.poker")
-                );
-                
-                if($scope.user.role == "Scrum Master"){
-                    $location.path("/scrum");
-                    initializeScrum();
-                }else if ($scope.user.role == "Developer"){
-                    $location.path("/poker");
-                    initializeGame();
-                }
-                
-                // socket.initiate(function(){
-                //     startListning();
-                // });
-            }else{
-                window.alert(response.data.result);
-                $location.path("/");
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-    }else{
-        $location.path("/");
-    }
-    
-    $scope.openUserMenu = function ($mdOpenMenu, ev) {
-        originatorEv = ev;
-        $mdOpenMenu(ev);
-    };
-
-    $scope.logout = function(){
-        $http({
-            method: "GET",
-            url: "/api/logout",
-            }).then(function successCallback(response) {
-                $scope.user = { username : "" };
-                console.log(response);
-                setCookie("username", "", 0);
-                $location.path("/");
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent("Bye bye.. Hope to see you again")
-                        .position( "top right")
-                        .hideDelay(2000)
-                        .parent("md-content.md-padding")
-                );
-                
-                $scope.credential = {
-                    username : "",
-                    password : ""
-                };
-                $scope.newuser = {
-                    firstName : "",
-                    lastName : "",
-                    email : "",
-                    username : "",
-                    password : "",
-                    role : ""
-                };
-                //// end the socket communication
-                
-                
-            }, function errorCallback(response) {
-                //window.alert(response);
-                console.error(response);
-        });
-    };
-    
-        
-    $scope.newuser = {
-      email : "",
-      username : "",
-      password : ""
-    }
-    
-    $scope.showLogin = function(){
-        $location.path("/");
-        $scope.credential = {
-            username : "",
-            password : ""
-        };
-    };
-    $scope.showSignUp = function(){
-        $scope.newuser = {
-            firstName : "",
-            lastName : "",
-            email : "",
-            username : "",
-            password : "",
-            role : ""
-        };
-        $location.path("/signup");
-    };
-    
-    $scope.callSignUp = function(){
-      $http({
-            method: "POST",
-            url: "/api/user",
-            data: $scope.newuser
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data.username){
-                $scope.user = response.data;
-                // socket.initiate(function(){
-                //     startListning();
-                // });
-                if($scope.user.role == "Scrum Master"){
-                    $location.path("/scrum");
-                    initializeScrum();
-                }else if ($scope.user.role == "Developer"){
-                    $location.path("/poker");
-                    initializeGame();
-                }
-            }else{
-                window.alert(response.data.result);
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-    }
-    
-    $scope.credential = {
-      username : "",
-      password : ""
-    }
-    
-    $scope.callLogin = function(){
-      $http({
-            method: "POST",
-            url: "/api/userlogin",
-            data: $scope.credential
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data.username){
-                $scope.user = response.data;
-                setCookie("username" , $scope.user._id, 10);
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent("Welcome back " + $scope.user.username)
-                        .position( "top right")
-                        .hideDelay(2000)
-                        .parent("md-content.md-padding")
-                );
-                if($scope.user.role == "Scrum Master"){
-                    $location.path("/scrum");
-                    initializeScrum();
-                }else if ($scope.user.role == "Developer"){
-                    $location.path("/poker");
-                    initializeGame();
-                }
-                // socket.initiate(function(){
-                //     startListning();
-                // });
-            }else{
-                window.alert(response.data.result);
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-    }
-    
-     /*********   Themes   ************* */
-    $scope.themes = ["default","purple","red"];
-    $scope.dynamicTheme = "default";
-   
-     $scope.changeTheme = function (theme) {
-            $scope.dynamicTheme = theme;
-   };
-    
     /***********   Cookie   ******************** */
     function setCookie(cname, cvalue, exmins) {
       var d = new Date();
@@ -327,76 +50,76 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         }
         return "";
     }
-    /******************************************** */
-    $scope.cards = [{ value: 0, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
-    
-    // $scope.GroupUsers = [
-    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
-    //     { "userName":"nitesh", "card": "", "played" : false, "online" : false },
-    //     { "userName":"swapnil", "card": "", "played" : false, "online" : false },
-    //     { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
-    //     { "userName":"freddy", "card": "", "played" : false, "online" : false  },
-    //     { "userName":"gargik", "card": "", "played" : false, "online" : false }
-        
-    // ];
-    
-    $scope.showCard = false;
-    
-    $scope.getNumber = function(num) {
-        return new Array(num);   
-    };
-    /***************    game controls   ********************************* */
-    $scope.playCard = function(card){
-        if($scope.gameStarted){
-            socket.emit("playCard", { "card" : card , "projectId" : $scope.devSelectedProject._id });
-        }else{
-            
-        }
-    };
-    
-    $scope.showCards = function(card){
-        socket.emit("showCards", { "projectId" : $scope.selectedProject._id });
-    };
-    $scope.chatGroup = [];
-    
-    $scope.chat = { text: "" };
-    
-    $scope.typingUser = "";
-    
-    $scope.sendChat = function(){
-        $scope.chatGroup.push({ "user" :$scope.user.username, "text" : $scope.chat.text });
-        if($scope.user.role === "Scrum Master"){
-            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.selectedProject._id })
-        }else if($scope.user.role === "Developer"){
-            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.devSelectedProject._id })
-        }
-        $scope.chat.text = "";
-    };
-    
-    // $scope.$watch($scope.chat,function(newVal,oldVal){
-    //     socket.emit("typing");
-    // });
-    
-    $scope.toggleProjectNavLeft = buildToggler("left");
-    $scope.toggleRight = buildToggler('right');
-    
-    function buildToggler(navID) {
-      return function() {
-        $mdSidenav(navID)
-          .toggle()
-          .then(function () {
-            //$log.debug("toggle " + navID + " is done");
-          });
-      }
+
+    function showToast(message){
+        $mdToast.show(
+            $mdToast.simple()
+                .textContent(message)
+                .position( "top right")
+                .hideDelay(2000)
+                .parent("md-content.md-padding")
+        );
     }
-    
-    $scope.close = function (sideNav) {
-      $mdSidenav(sideNav).close()
-        .then(function () {
-          //$log.debug("close "+sideNav+" is done");
+
+    function initializeScrum(){
+        //load Projects
+        $http({
+            method: "GET",
+            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                $scope.smProjects = response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
         });
-    };
-    
+        
+        //load user List
+        $scope.loadUserList = function(){
+           
+            $http({
+                method: "GET",
+                url: "/api/users" //+ $scope.user.role + "/" + $scope.user.username
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                if(response.data){
+                    $scope.usersList = response.data;
+                }else{
+                    window.alert(response.data.result);
+                }
+            }, function errorCallback(response) {
+                console.error(response);
+            });
+        };
+        
+        
+        
+        $scope.createProject = function(project){
+            console.log(project);
+            $http({
+                method: "POST",
+                url: "/api/project",
+                data: $scope.newProject
+                //dataType: "application/json"
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                if(response.data){
+                    console.log(response.data);
+                    $scope.smProjects.push(response.data);
+                    $scope.newProject = {};
+                    $scope.newProject.name = "";
+                }else{
+                    window.alert(response.data.result);
+                }
+            }, function errorCallback(response) {
+                console.error(response);
+            });
+         };
+        
+    }
     /****************    Socket Listners     ******************* */
     function startListning(){
         angular.forEach($scope.GroupUsers,function(member){
@@ -479,7 +202,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         });
         $scope.gameStarted = false;
         
-        socket.on("gameStart",function(userStory){
+        socket.on("gameStart",function(){
             $scope.gameStarted = true;
             $scope.showCard = false;
             angular.forEach($scope.GroupUsers,function(member){
@@ -503,7 +226,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
             if($scope.chatStarted){
                 $scope.toggleRight();
             }else{
-                $scope.close('right');
+                $scope.close("right");
             }
             ion.sound.play("bell_ring",{ loop: 1 });
         });
@@ -525,16 +248,361 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         
         
     }
+
+
+    $scope.GroupUsers = [];
+    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
     
-    function showToast(message){
-        $mdToast.show(
-            $mdToast.simple()
-                .textContent(message)
-                .position( "top right")
-                .hideDelay(2000)
-                .parent("md-content.md-padding")
-        );
+    $scope.getUserStories = function(project){
+        
+        console.log($scope.devProjectIndex);
+        console.log(project);
+        $scope.devSelectedProject = project;
+        $scope.GroupUsers = [];
+        angular.forEach($scope.devSelectedProject.members,function(member){
+            $scope.GroupUsers.push({ "userName": member, "card": "", "played" : false , "online" : false });
+        });
+        
+        socket.initiate(function(){
+            startListning();
+        });
+        
+        $http({
+            method: "GET",
+            url: "/api/stories/" + project._id,
+            data: { projectId : $scope.selectedProject._id, userStory : $scope.userStory }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                console.log(response.data);
+                $scope.userStories=response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    };
+    $scope.developerProjects = [];
+    function initializeGame(){
+        $http({
+            method: "GET",
+            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data){
+                $scope.developerProjects = response.data;
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
     }
+    
+    ion.sound({
+        sounds: [
+            {
+                name: "bell_ring"
+            },{
+                name: "chat_alertshort"
+            },{
+                name: "water_droplet_3"
+            },{
+                name: "button_tiny"
+            }
+            // {
+            //     name: "notify_sound",
+            //     volume: 0.2
+            // },
+            // {
+            //     name: "alert_sound",
+            //     volume: 0.3,
+            //     preload: false
+            // }
+        ],
+        volume: 0.8,
+        path: "Client/ion.sound-3.0.7/sounds/",
+        preload: true
+    });
+    
+    ion.sound({
+        sounds: [
+            {
+                name: "cardPlace1"
+            },{
+                name: "cardPlace2"
+            }
+        ],
+        volume: 0.8,
+        path: "Client/alerts/Casino sound package/",
+        preload: true
+    });
+    
+    
+    
+    //ion.sound.play("chat_alertshort");
+    
+    
+    
+    var cookie = getCookie("username");
+    if(cookie !== ""){
+        $http({
+            method: "POST",
+            url: "/api/userlogin",
+            data: { usernameCookie : cookie }
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data.username){
+                $scope.user = response.data;
+                setCookie("username" , $scope.user._id, 10);
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Welcome back " + $scope.user.username)
+                        .position("top right")
+                        .hideDelay(2000)
+                        .parent("div.poker")
+                );
+                
+                if($scope.user.role === "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role === "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
+                
+                // socket.initiate(function(){
+                //     startListning();
+                // });
+            }else{
+                window.alert(response.data.result);
+                $location.path("/");
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    }else{
+        $location.path("/");
+    }
+    
+    $scope.openUserMenu = function ($mdOpenMenu, ev) {
+        $mdOpenMenu(ev);
+    };
+
+    $scope.logout = function(){
+        $http({
+            method: "GET",
+            url: "/api/logout",
+            }).then(function successCallback(response) {
+                $scope.user = { username : "" };
+                console.log(response);
+                setCookie("username", "", 0);
+                $location.path("/");
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Bye bye.. Hope to see you again")
+                        .position( "top right")
+                        .hideDelay(2000)
+                        .parent("md-content.md-padding")
+                );
+                
+                $scope.credential = {
+                    username : "",
+                    password : ""
+                };
+                $scope.newuser = {
+                    firstName : "",
+                    lastName : "",
+                    email : "",
+                    username : "",
+                    password : "",
+                    role : ""
+                };
+                //// end the socket communication
+                
+                
+            }, function errorCallback(response) {
+                //window.alert(response);
+                console.error(response);
+        });
+    };
+    
+        
+    $scope.newuser = {
+      email : "",
+      username : "",
+      password : ""
+    };
+    
+    $scope.showLogin = function(){
+        $location.path("/");
+        $scope.credential = {
+            username : "",
+            password : ""
+        };
+    };
+    $scope.showSignUp = function(){
+        $scope.newuser = {
+            firstName : "",
+            lastName : "",
+            email : "",
+            username : "",
+            password : "",
+            role : ""
+        };
+        $location.path("/signup");
+    };
+    
+    $scope.callSignUp = function(){
+      $http({
+            method: "POST",
+            url: "/api/user",
+            data: $scope.newuser
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data.username){
+                $scope.user = response.data;
+                // socket.initiate(function(){
+                //     startListning();
+                // });
+                if($scope.user.role === "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role === "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    };
+    
+    $scope.credential = {
+      username : "",
+      password : ""
+    };
+    
+    $scope.callLogin = function(){
+      $http({
+            method: "POST",
+            url: "/api/userlogin",
+            data: $scope.credential
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            if(response.data.username){
+                $scope.user = response.data;
+                setCookie("username" , $scope.user._id, 10);
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent("Welcome back " + $scope.user.username)
+                        .position( "top right")
+                        .hideDelay(2000)
+                        .parent("md-content.md-padding")
+                );
+                if($scope.user.role === "Scrum Master"){
+                    $location.path("/scrum");
+                    initializeScrum();
+                }else if ($scope.user.role === "Developer"){
+                    $location.path("/poker");
+                    initializeGame();
+                }
+                // socket.initiate(function(){
+                //     startListning();
+                // });
+            }else{
+                window.alert(response.data.result);
+            }
+        }, function errorCallback(response) {
+            console.error(response);
+        });
+    };
+    
+     /*********   Themes   ************* */
+    $scope.themes = ["default","purple","red"];
+    $scope.dynamicTheme = "default";
+   
+     $scope.changeTheme = function (theme) {
+            $scope.dynamicTheme = theme;
+   };
+    
+    
+    /******************************************** */
+    $scope.cards = [{ value: 0, imagePath: "b-0.png" }, { value: 1, imagePath: "b-1.png" }, { value: 2, imagePath: "b-2.png" }, { value: 3, imagePath: "b-3.png" }, { value: 5, imagePath: "b-5.png" }, { value: 8, imagePath: "b-8.png" }, { value: 13, imagePath: "b-13.png" }, { value: 20, imagePath: "b-20.png" }, { value: 40, imagePath: "b-40.png" }, { value: 100, imagePath: "b-100.png" }, { value: "?", imagePath: "b-noidea.png" }];
+    
+    // $scope.GroupUsers = [
+    //     { "userName":"pritesh", "card": "", "played" : false , "online" : false },
+    //     { "userName":"nitesh", "card": "", "played" : false, "online" : false },
+    //     { "userName":"swapnil", "card": "", "played" : false, "online" : false },
+    //     { "userName":"jonathan", "card": "", "played" : false, "online" : false  },
+    //     { "userName":"freddy", "card": "", "played" : false, "online" : false  },
+    //     { "userName":"gargik", "card": "", "played" : false, "online" : false }
+        
+    // ];
+    
+    $scope.showCard = false;
+    
+    $scope.getNumber = function(num) {
+        return new Array(num);   
+    };
+    /***************    game controls   ********************************* */
+    $scope.playCard = function(card){
+        if($scope.gameStarted){
+            socket.emit("playCard", { "card" : card , "projectId" : $scope.devSelectedProject._id });
+        }else{
+            
+        }
+    };
+    
+    $scope.showCards = function(){
+        socket.emit("showCards", { "projectId" : $scope.selectedProject._id });
+    };
+    $scope.chatGroup = [];
+    
+    $scope.chat = { text: "" };
+    
+    $scope.typingUser = "";
+    
+    $scope.sendChat = function(){
+        $scope.chatGroup.push({ "user" :$scope.user.username, "text" : $scope.chat.text });
+        if($scope.user.role === "Scrum Master"){
+            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.selectedProject._id });
+        }else if($scope.user.role === "Developer"){
+            socket.emit("chatMessage",{ "user" :$scope.user.username, "text" : $scope.chat.text , "projectId" : $scope.devSelectedProject._id });
+        }
+        $scope.chat.text = "";
+    };
+    
+    // $scope.$watch($scope.chat,function(newVal,oldVal){
+    //     socket.emit("typing");
+    // });
+    
+    
+    function buildToggler(navID) {
+      return function() {
+        $mdSidenav(navID)
+          .toggle()
+          .then(function () {
+            //$log.debug("toggle " + navID + " is done");
+          });
+      };
+    }
+    
+    $scope.close = function (sideNav) {
+      $mdSidenav(sideNav).close()
+        .then(function () {
+          //$log.debug("close "+sideNav+" is done");
+        });
+    };
+
+    $scope.toggleProjectNavLeft = buildToggler("left");
+    $scope.toggleRight = buildToggler("right");
+
+    
+    
     
     /**************************************************************** */
     $scope.getSelectedProject = function () {
@@ -551,65 +619,9 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
     $scope.usersList = [];
     $scope.newProject = {
         name : ""
-    }
-    function initializeScrum(){
-        //load Projects
-        $http({
-            method: "GET",
-            url: "/api/projects" //+ $scope.user.role + "/" + $scope.user.username
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            if(response.data){
-                $scope.smProjects = response.data;
-            }else{
-                window.alert(response.data.result);
-            }
-        }, function errorCallback(response) {
-            console.error(response);
-        });
-        
-        //load user List
-        $scope.loadUserList = function(){
-           
-            $http({
-                method: "GET",
-                url: "/api/users" //+ $scope.user.role + "/" + $scope.user.username
-            }).then(function successCallback(response) {
-                console.log(response.data);
-                if(response.data){
-                    $scope.usersList = response.data;
-                }else{
-                    window.alert(response.data.result);
-                }
-            }, function errorCallback(response) {
-                console.error(response);
-            });
-        }
-        
-        
-        
-        $scope.createProject = function(project){
-            $http({
-                method: "POST",
-                url: "/api/project",
-                data: $scope.newProject
-                //dataType: "application/json"
-            }).then(function successCallback(response) {
-                console.log(response.data);
-                if(response.data){
-                    console.log(response.data);
-                    $scope.smProjects.push(response.data);
-                    $scope.newProject = {};
-                    $scope.newProject.name = "";
-                }else{
-                    window.alert(response.data.result);
-                }
-            }, function errorCallback(response) {
-                console.error(response);
-            });
-         };
-        
-    }
+    };
+    
+    
     $scope.selectedProject = {};
     $scope.selectProject = function(project){
         $scope.selectedProject = project;
@@ -675,11 +687,11 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         if($scope.selectedProject.members.indexOf(member !== -1)){
             $scope.selectedProject.members.splice($scope.selectedProject.members.indexOf(member),1);
         }
-    }
+    };
     $scope.userStory = {
         name : "",
         description : "" 
-    }
+    };
     $scope.updateGroupMembers = function(ev){
         $http({
             method: "PATCH",
@@ -691,12 +703,12 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                 console.log(response.data);
                 $mdDialog.show(
                     $mdDialog.alert()
-                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .parent(angular.element(document.querySelector("#popupContainer")))
                         .clickOutsideToClose(true)
-                        .title('Success')
-                        .textContent('Users Updated successfully!')
-                        .ariaLabel('Alert Dialog')
-                        .ok('OK')
+                        .title("Success")
+                        .textContent("Users Updated successfully!")
+                        .ariaLabel("Alert Dialog")
+                        .ok("OK")
                         .targetEvent(ev)
                  );
                 $scope.smProjects.push(response.data);
@@ -706,7 +718,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         }, function errorCallback(response) {
             console.error(response);
         });
-    }
+    };
     
     
     
@@ -722,12 +734,12 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
                 //$scope.smProjects.push(response.data);
                  $mdDialog.show(
                     $mdDialog.alert()
-                        .parent(angular.element(document.querySelector('#popupContainer')))
+                        .parent(angular.element(document.querySelector("#popupContainer")))
                         .clickOutsideToClose(true)
-                        .title('Success Message')
-                        .textContent('User Story Added successfully!')
-                        .ariaLabel('Alert Dialog')
-                        .ok('OK')
+                        .title("Success Message")
+                        .textContent("User Story Added successfully!")
+                        .ariaLabel("Alert Dialog")
+                        .ok("OK")
                         .targetEvent(ev)
                  );
                   $scope.userStory={};
@@ -737,7 +749,7 @@ pokerApp.controller("PokerCtrl",["$scope","$http","$location","$mdToast","$mdSid
         }, function errorCallback(response) {
             console.error(response);
         });
-    }
+    };
     
     $scope.selecteUserStoryForGame = function (selectedStory) {
         angular.forEach($scope.userStories, function (story) {
@@ -775,10 +787,10 @@ pokerApp.config(["$mdThemingProvider","$routeProvider","$compileProvider", funct
     $compileProvider.debugInfoEnabled(false);
     $mdThemingProvider.theme("default")
         .primaryPalette("blue",{
-            'default': '700', // by default use shade 400 from the pink palette for primary intentions
-            'hue-1': '500', // use shade 100 for the <code>md-hue-1</code> class
-            'hue-2': '400', // use shade 600 for the <code>md-hue-2</code> class
-            'hue-3': 'A100' // use shade A100 for the <code>md-hue-3</code> class
+            "default": "700", // by default use shade 400 from the pink palette for primary intentions
+            "hue-1": "500", // use shade 100 for the <code>md-hue-1</code> class
+            "hue-2": "400", // use shade 600 for the <code>md-hue-2</code> class
+            "hue-3": "A100" // use shade A100 for the <code>md-hue-3</code> class
         })
         .accentPalette("orange");
     $mdThemingProvider.theme("purple")
@@ -843,12 +855,11 @@ pokerApp.service("socket", ["$location", "$timeout",
     }
 ]);
 
-pokerApp.service("auth",["$scope", "$http", function($scope, $http){
+pokerApp.service("auth",["$scope", "$http","$mdToast", function($scope, $http, $mdToast){
     $scope.authorized = false;
-    $scope.user;
     this.isAuthorized = function(){
         return $scope.authorized;
-    }
+    };
   
     this.authenticate = function(credential, callback){
         $http({
@@ -876,6 +887,6 @@ pokerApp.service("auth",["$scope", "$http", function($scope, $http){
         }, function errorCallback(response) {
             console.error(response);
         });
-    }
+    };
   
 }]);

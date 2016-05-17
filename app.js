@@ -1,12 +1,14 @@
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
+"use strict";
 var express = require("express");
 var app = express();
-var MongoClient = require('mongodb').MongoClient;
+var MongoClient = require("mongodb").MongoClient;
 //var formidable = require('formidable');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
 
 var bodyParser = require("body-parser");
-var session = require('express-session');
+var session = require("express-session");
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static(".")); // serve static files
@@ -24,17 +26,15 @@ io.use(function (socket, next) {
 });
 app.use(sessionMiddleware);
 
-var sess;
-
 var userAPI = require("./appUsers.js"),
-    userStoryAPI = require("./appUserStory.js")
-socketAPI = require("./appSocket.js");
+    userStoryAPI = require("./appUserStory.js"),
+    socketAPI = require("./appSocket.js");
 /******************create Database and design docs ********************* */
 
 /********************************************************** */
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/Client/index.html');
+app.get("/", function (req, res) {
+    res.sendFile(__dirname + "/Client/index.html");
 });
 
 userAPI.addRoutes(app, MongoClient, mongodbUrl);
@@ -57,11 +57,11 @@ app.get("/api", function (req, res) {
     res.send(doc);
 });
 
-app.get('/*', function (req, res) {
+app.get("/*", function (req, res) {
     res.redirect("/");
 });
 
 
 http.listen(7000, function () {
-    console.log('PlanningPoker app listening on port 7000!');
+    console.log("PlanningPoker app listening on port 7000!");
 });

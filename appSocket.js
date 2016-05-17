@@ -1,8 +1,10 @@
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
+"use strict";
 module.exports = {
     addSocket: function(io,MongoClient, mongodbUrl){
         var clients = [];
         var usersList = [];
-        var ObjectID = require('mongodb').ObjectID;
+        var ObjectID = require("mongodb").ObjectID;
         // var groups = [{
         //     groupName : "group1",
         //     members : ["pritesh","swapnil","gargik","anurag"],
@@ -13,14 +15,14 @@ module.exports = {
         //     members : ["jonnathan"],
         //     onlineMembers : []
         // }];
-         var findandUpdateDoc = function (db, collection, search, sort, update, isNew, callback) {
+        var findandUpdateDoc = function (db, collection, search, sort, update, isNew, callback) {
             db.collection(collection).findAndModify(search, sort, update, isNew, function (err, doc) {
                 if (!err) {
                     console.log(doc);
                 }
                 callback(err, doc);
             });
-        }
+        };
         var groups = [];
         var projectInfoCollection = "projectInfo";
         var storyCollection = "userStories";
@@ -29,12 +31,10 @@ module.exports = {
                 if (err) {
                     //throw err;
                     console.log(err);
-                    res.send(err);
                 } else {
                     console.log(result);
                     groups = result;
-                    var groupsLength = groups.length;
-                    groups.forEach(function(group,g){
+                    groups.forEach(function(group){
                         group.members.push(group.scrumMaster);
                         group.groupName = group._id;
                         group.onlineMembers = [];
@@ -44,15 +44,15 @@ module.exports = {
         });
         
         
-        io.on('connection', function (socket) {
-            console.log('a user connected');
+        io.on("connection", function (socket) {
+            console.log("a user connected");
             var req = socket.request;
             // check if session exists
             if (req.session.username) {
                 usersList[req.session.username] = socket.id; // connected user with its socket.id
                 clients[socket.id] = socket; // add the client data to the hash
-                console.log(req.session.username + ' connected with session id: ' + req.session.id);
-                clients[usersList[req.session.username]].emit('confirmSession', "Hello " + req.session.username + ", how've you been");
+                console.log(req.session.username + " connected with session id: " + req.session.id);
+                clients[usersList[req.session.username]].emit("confirmSession", "Hello " + req.session.username + ", how've you been");
                 
                 // //you see that io was initially defined as the socket.io module, so we emit to all its sockets.
                 // //one of the latest updates to socket.io now allows rooms/groups. for a client to join and leave a room:
@@ -63,37 +63,7 @@ module.exports = {
                 // //to broadcast information globally:
                 // io.sockets.in('room1').emit('function', 'data1', 'data2');
                 
-                MongoClient.connect(mongodbUrl, function (err, db) {
-                    db.collection(projectInfoCollection).find().toArray(function (err, result) {
-                        if (err) {
-                            //throw err;
-                            console.log(err);
-                            res.send(err);
-                        } else {
-                            console.log(result);
-                            var i=0,j=0;
-                            for(i=0;i<result.length;i++){
-                                var isProjectAdded = false;
-                                for(j=0;j<groups.length;j++){
-                                    if(new ObjectID(result[i]._id).equals(new ObjectID(groups[j]._id))){
-                                        groups[j].members = result[i].members;
-                                        groups[j].members.push(result[i].scrumMaster);
-                                        isProjectAdded = true;
-                                    }
-                                }
-                                if(!isProjectAdded){
-                                    result[i].members.push(result[i].scrumMaster);
-                                    result[i].groupName = result[i]._id;
-                                    result[i].onlineMembers = [];
-                                    groups.push(result[i]);
-                                }
-                            }   
-                            startSocketListners();
-                        }
-                    });
-                });
-                
-                function startSocketListners(){
+                var startSocketListners = function(){
                     groups.forEach(function(group) {
                         group.members.forEach(function(member) {
                             if(member === req.session.username){
@@ -206,17 +176,47 @@ module.exports = {
                             }
                         });
                     });
-                }    
+                };
+
+                MongoClient.connect(mongodbUrl, function (err, db) {
+                    db.collection(projectInfoCollection).find().toArray(function (err, result) {
+                        if (err) {
+                            //throw err;
+                            console.log(err);
+                        } else {
+                            console.log(result);
+                            var i=0,j=0;
+                            for(i=0;i<result.length;i++){
+                                var isProjectAdded = false;
+                                for(j=0;j<groups.length;j++){
+                                    if(new ObjectID(result[i]._id).equals(new ObjectID(groups[j]._id))){
+                                        groups[j].members = result[i].members;
+                                        groups[j].members.push(result[i].scrumMaster);
+                                        isProjectAdded = true;
+                                    }
+                                }
+                                if(!isProjectAdded){
+                                    result[i].members.push(result[i].scrumMaster);
+                                    result[i].groupName = result[i]._id;
+                                    result[i].onlineMembers = [];
+                                    groups.push(result[i]);
+                                }
+                            }   
+                            startSocketListners();
+                        }
+                    });
+                });
+    
                     //io.emit("broadcast" , "Hello Everyone.");
             } else {
-                console.log('an unknown user started session');
+                console.log("an unknown user started session");
             }
 
-            socket.on('startSession', function (msg) {
-                console.log('message: ' + msg);
+            socket.on("startSession", function (msg) {
+                console.log("message: " + msg);
             });
 
-            socket.on('disconnect', function() {
+            socket.on("disconnect", function() {
                 var req = socket.request;
                 
                 if(req.session.username) {
@@ -237,7 +237,7 @@ module.exports = {
                     });
                     
                 } else {
-                    console.log('unknowon user disconnected');
+                    console.log("unknowon user disconnected");
                 }
             });
         });

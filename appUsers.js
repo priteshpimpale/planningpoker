@@ -1,18 +1,19 @@
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, undef: true, unused: true, strict: true, trailing: true */
+"use strict";
 module.exports = {
     addRoutes: function(app,MongoClient,mongodbUrl){
         
         var userCollection = "users";
-        
+        var sess;
         var insertDoc = function(db, data, callback) {
             db.collection(userCollection).insertOne(data, function(err, result) {
-                
-                console.log("Inserted a document into the " + userCollection + " collection.");
+                console.log("Inserted a document into the " + userCollection + " collection." + result);
                 callback();
             });
         };
         
         /// Add new user 
-        app.post('/api/user', function (req, res) {
+        app.post("/api/user", function (req, res) {
             var user = req.body;
             user._id = req.body.username;
             console.log(user);
@@ -41,12 +42,11 @@ module.exports = {
 
         /// Update User 
         app.patch("/api/user", function (req, res) {
-            var user = req.body;
             res.send(req.body);
         });
 
         /// Login User 
-        app.post('/api/userlogin', function (req, res) {
+        app.post("/api/userlogin", function (req, res) {
             console.log(req.body);
             if (req.body.username) {
                 MongoClient.connect(mongodbUrl, function(err, db) {
@@ -134,12 +134,12 @@ module.exports = {
         
         
         /// logout user
-        app.get('/api/logout', function (req, res) {
+        app.get("/api/logout", function (req, res) {
             req.session.destroy(function (err) {
                 if (err) {
                     console.log(err);
                 } else {
-                    res.redirect('/');
+                    res.redirect("/");
                 }
             });
         });
