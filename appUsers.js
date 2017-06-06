@@ -16,7 +16,7 @@ module.exports = {
         app.post("/api/user", function (req, res) {
             var user = req.body;
             user._id = req.body.username;
-            console.log(user);
+            // console.log(user);
             MongoClient.connect(mongodbUrl, function(err, db) {
                 if(!err){
                     insertDoc(db, user, function() {
@@ -28,7 +28,7 @@ module.exports = {
                                 console.log(err);
                                 res.send(err);
                             }else{
-                                console.log(result); 
+                                // console.log(result); 
                                 sess = req.session;
                                 sess.user = result; //set complete user object
                                 sess.username = result.username; // set userName  
@@ -47,7 +47,7 @@ module.exports = {
 
         /// Login User 
         app.post("/api/userlogin", function (req, res) {
-            console.log(req.body);
+            // console.log(req.body);
             if (req.body.username) {
                 MongoClient.connect(mongodbUrl, function(err, db) {
                     if (err) {
@@ -59,7 +59,7 @@ module.exports = {
                             res.send(err);
                             //throw err;
                         }else{
-                            console.log(result); 
+                            // console.log(result); 
                             if(result !== null){
                                 sess = req.session;
                                 sess.user = result; // set userName ///body.rows[0].value;
@@ -84,7 +84,7 @@ module.exports = {
                                     if (err) {
                                         throw err;
                                     }else{
-                                        console.log(result);
+                                        // console.log(result);
                                         db.close(); 
                                         if(result !== null){
                                             sess = req.session;
@@ -118,7 +118,7 @@ module.exports = {
                              if (err) {
                                 throw err;
                             }else{
-                                console.log(result);
+                                // console.log(result);
                                 db.close();
                                 if(result !== null){  
                                     res.send(result);

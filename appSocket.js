@@ -18,7 +18,7 @@ module.exports = {
         var findandUpdateDoc = function (db, collection, search, sort, update, isNew, callback) {
             db.collection(collection).findAndModify(search, sort, update, isNew, function (err, doc) {
                 if (!err) {
-                    console.log(doc);
+                    // console.log(doc);
                 }
                 callback(err, doc);
             });
@@ -32,7 +32,7 @@ module.exports = {
                     //throw err;
                     console.log(err);
                 } else {
-                    console.log(result);
+                    // console.log(result);
                     groups = result;
                     groups.forEach(function(group){
                         group.members.push(group.scrumMaster);
@@ -67,11 +67,13 @@ module.exports = {
                     groups.forEach(function(group) {
                         group.members.forEach(function(member) {
                             if(member === req.session.username){
+                                
                                 socket.join(group.groupName);
                                 group.onlineMembers.push(req.session.username);
                                 socket.broadcast.to(group.groupName).emit("online", req.session.username);
                                 //io.sockets.in(group.groupName).emit("online", req.session.username);
                                 socket.emit("groupOnline",group.onlineMembers);
+                                console.log( group.groupName + " : "+  group.onlineMembers)
                             }
                         });
                     });
@@ -138,6 +140,7 @@ module.exports = {
                             group.members.forEach(function(member) {
                                 if(member === req.session.username && new ObjectID(group._id).equals(new ObjectID(message.projectId))){
                                     socket.broadcast.to(group.groupName).emit("chatMessage", message);
+                                    console.log(group.groupName + " : " + group.onlineMembers + " : " + message);
                                     //io.sockets.in(group.groupName).emit("chatMessage",message);
                                     //socket.emit("playedCard",group.onlineMembers);
                                 }
@@ -155,7 +158,7 @@ module.exports = {
                                     { new: true }, // options - new to return the modified document
                                     function (error, doc) {
                                         if(!error){
-                                            console.log(doc.value);
+                                            // console.log(doc.value);
                                             groups.forEach(function(group) {
                                                 group.members.forEach(function(member) {
                                                     if(member === req.session.username && new ObjectID(group._id).equals(new ObjectID(message.projectId))){
@@ -184,7 +187,7 @@ module.exports = {
                             //throw err;
                             console.log(err);
                         } else {
-                            console.log(result);
+                            // console.log(result);
                             var i=0,j=0;
                             for(i=0;i<result.length;i++){
                                 var isProjectAdded = false;

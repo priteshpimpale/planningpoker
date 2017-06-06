@@ -34,7 +34,7 @@ module.exports = {
                                 //throw err;
                                 console.log(err);
                             } else {
-                                console.log(result);
+                                // console.log(result);
                                 userStoriesIdsArr = result.userStories;
                             }
                             var uStoryObj = [];
@@ -75,7 +75,7 @@ module.exports = {
                                 console.log(err);
                                 res.send();
                             } else {
-                                console.log(result);
+                                // console.log(result);
                                 var story = result.ops[0];
                                 db.collection(projectInfoCollection).update(
                                     { _id: new ObjectID(projectId) },
@@ -112,7 +112,7 @@ module.exports = {
                         insertDoc(projectInfoCollection, db, project, function (err, result) {
                             /// return inserted user object
                             if (!err) {
-                                console.log(result);
+                                // console.log(result);
                                 res.send(JSON.stringify(result.ops[0]));
                             }
 
@@ -138,7 +138,7 @@ module.exports = {
                                 console.log(err);
                                 res.send(err);
                             } else {
-                                console.log(result);
+                                // console.log(result);
                                 //if (sess.user) {
                                 res.send(result);
                                 // } else {
@@ -156,7 +156,7 @@ module.exports = {
                                 console.log(err);
                                 res.send(err);
                             } else {
-                                console.log(result);
+                                // console.log(result);
                                 if (sess.user) {
                                     res.send(JSON.stringify(result));
                                 } else {
@@ -175,7 +175,7 @@ module.exports = {
         var findandUpdateDoc = function (db, collection, search, sort, update, isNew, callback) {
             db.collection(collection).findAndModify(search, sort, update, isNew, function (err, doc) {
                 if (!err) {
-                    console.log(doc);
+                    // console.log(doc);
                 }
                 callback(err, doc);
             });
